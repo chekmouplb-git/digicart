@@ -136,6 +136,7 @@ body {
 .nav-inner {
   display: flex;
   align-items: stretch;
+  justify-content: center;
   overflow-x: auto;
   scrollbar-width: none;
 }
