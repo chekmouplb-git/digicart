@@ -51,6 +51,7 @@ body {
   font-size: 13px;
   color: var(--gray-600);
   position: relative;
+  min-height: 56px;
 }
 
 .topbar-left { display: flex; align-items: center; gap: 10px; }
@@ -64,11 +65,14 @@ body {
   transform: translateX(-50%);
 }
 .topbar-logo {
-  height: 36px;
+  height: 40px;
   width: auto;
+  max-height: 40px;
+  object-fit: contain;
+  display: block;
 }
 .topbar-college {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--maroon);
   letter-spacing: 0.3px;
