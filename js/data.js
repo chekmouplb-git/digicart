@@ -51,7 +51,6 @@ const DIGICART_DATA = {
 
   // ── TAGLINE (rotates on load) ─────────────────────────────
   taglines: [
-    "Makaekolohiyang Araw!",
     "Serving CHE with Innovation.",
     "One Portal. All Apps.",
   ],
