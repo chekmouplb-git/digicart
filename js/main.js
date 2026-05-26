@@ -112,7 +112,36 @@ function openApp(el) {
   window.open(link, '_blank', 'noopener,noreferrer');
 }
 
-// ── CHE DO PORTAL TOGGLE ──────────────────────
+// ── CHE DO PORTAL REVEAL (from nav click) ────
+function revealCHEDO(e) {
+  e.preventDefault();
+  const card = document.getElementById('chedo');
+  if (!card) return;
+
+  // If already visible, just scroll to it
+  if (card.classList.contains('chedo-revealed')) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.outline = '2px solid var(--green-light)';
+    setTimeout(() => card.style.outline = '', 1200);
+    return;
+  }
+
+  // Reveal with animation
+  card.classList.remove('chedo-hidden');
+  card.classList.add('chedo-revealed');
+
+  // Highlight nav item
+  navItems.forEach(n => n.classList.remove('active'));
+  document.querySelector('[data-app="chedo"]').classList.add('active');
+
+  // Scroll to card smoothly after short delay
+  setTimeout(() => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+
+  showToast('🔐 CHE DO Portal revealed. Scroll down to access it.');
+}
+
 function toggleCHEDO() {
   const subapps = document.getElementById('chedoSubapps');
   const arrow = document.getElementById('chedoArrow');
