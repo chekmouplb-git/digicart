@@ -293,7 +293,21 @@ body {
 .sub-btn { background: var(--green); font-size: 12px; padding: 7px 14px; }
 .sub-btn:hover { background: var(--green-light); }
 
-/* ── CHE DO SUB-APPS ── */
+
+/* ── CHE DO PORTAL HIDDEN/REVEAL ── */
+.chedo-hidden {
+  display: none;
+}
+.chedo-revealed {
+  display: flex;
+  animation: chedoReveal 0.4s ease;
+}
+@keyframes chedoReveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
 .chedo-subapps {
   display: none;
   flex-direction: column;
