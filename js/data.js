@@ -13,7 +13,7 @@ const DIGICART_DATA = {
     {
       month: "November 2026",
       items: [
-        { day: "28", name: "CHE 52<sup>nd</sup> Founding Anniversary" },
+        { day: "04", name: "Birthday ng Baby ko" },
         { day: "28", name: "HEALS Awarding Ceremony" },
         { day: "29", name: "Alumni Talks" },
         { day: "30", name: "CHE Student Research Congress" },
