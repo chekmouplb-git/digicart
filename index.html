@@ -46,7 +46,7 @@
       <a href="#vehicle" class="nav-item restricted-nav" data-app="vehicle">Vehicle Reservation</a>
       <a href="#fund" class="nav-item restricted-nav" data-app="fund">Fund Utilization</a>
       <a href="#feedback" class="nav-item" data-app="feedback">Feedbacks Dashboard</a>
-      <a href="#chedo" class="nav-item special-nav" data-app="chedo">CHE DO Portal</a>
+      <a href="#" class="nav-item special-nav" data-app="chedo" onclick="revealCHEDO(event)">🔐 CHE DO Portal</a>
     </div>
   </nav>
 
@@ -69,7 +69,7 @@
             </div>
           </div>
           <p class="app-desc">Track and monitor document signing statuses, workflows, and signatories in real time.</p>
-          <a href="#" class="app-btn" data-link="https://datastudio.google.com/reporting/9c2fcb98-9b4a-47cd-9f34-782ddbe910fd" onclick="openApp(this)">
+          <a href="#" class="app-btn" data-link="PASTE_DOCUSIGN_URL_HERE" onclick="openApp(this)">
             Open App <span class="arrow">→</span>
           </a>
         </div>
@@ -142,8 +142,8 @@
           </a>
         </div>
 
-        <!-- CHE DO Portal -->
-        <div class="app-card chedo-card" id="chedo">
+        <!-- CHE DO Portal — hidden until nav link is clicked -->
+        <div class="app-card chedo-card chedo-hidden" id="chedo">
           <div class="app-card-header">
             <div class="app-icon">🏛️</div>
             <div class="app-meta">
@@ -264,4 +264,3 @@
   <script src="js/main.js"></script>
 </body>
 </html>
-
