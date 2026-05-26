@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHE DO Portal – DigiCART</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ── CHE DO PAGE OVERRIDES ── */
+    :root {
+      --do-dark:   #0D2B1F;
+      --do-main:   #1B4332;
+      --do-mid:    #2D6A4F;
+      --do-light:  #40916C;
+      --do-pale:   #D8F3DC;
+      --do-gold:   #C8960C;
+      --do-gold-l: #e8b420;
+    }
+
+    body { background: #F0FBF4; }
+
+    /* TOP BAR */
+    .topbar { border-bottom-color: #B7E4C7; }
+
+    /* HERO — green themed */
+    .hero {
+      background: var(--do-main);
+      border-bottom: 4px solid var(--do-gold);
+      padding: 28px 24px 20px;
+    }
+    .hero-bg {
+      background: url('assets/uplb-bg.jpg') center/cover no-repeat;
+      opacity: 0.06;
+    }
+    .logo-title { color: #fff; font-size: clamp(2rem, 5vw, 3.2rem); }
+    .logo-subtitle { color: rgba(255,255,255,0.7); }
+    .tagline { color: var(--do-gold-l); }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      padding: 7px 16px;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+    /* NAV */
+    .apps-nav { background: var(--do-dark); }
+    .nav-item:hover, .nav-item.active { background: var(--do-gold); }
+
+    /* SECTION */
+    .section-title { color: var(--do-main); border-bottom-color: var(--do-gold); }
+
+    /* DO HERO BANNER inside content */
+    .do-banner {
+      background: var(--do-main);
+      color: #fff;
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .do-banner-icon { font-size: 48px; flex-shrink: 0; }
+    .do-banner-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+    .do-banner-text p { font-size: 13.5px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    .do-notice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      background: rgba(200,150,12,0.2);
+      color: var(--do-gold-l);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    /* APP CARDS — green accent */
+    .app-card { border-color: #B7E4C7; }
+    .app-card:hover { border-color: var(--do-light); }
+    .app-name { color: var(--do-dark); }
+    .app-btn { background: var(--do-main); }
+    .app-btn:hover { background: var(--do-dark); }
+
+    /* CHE DO card accent */
+    .do-app-card { border-left: 4px solid var(--do-gold); }
+
+    /* FULL WIDTH — no sidebar on this page */
+    .main-grid { grid-template-columns: 1fr; max-width: 900px; }
+    .apps-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+
+    /* SECTION DIVIDER */
+    .do-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--do-light);
+    }
+    .do-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #B7E4C7;
+    }
+
+    /* Footer */
+    .site-footer { background: var(--do-dark); }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="weather">
+        <span class="weather-icon">🌧️</span>
+        <div class="weather-info">
+          <span class="weather-pct" id="weatherPct">—%</span>
+          <span class="weather-label">Chance of Raining</span>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <img src="assets/white bg che logo.png" alt="CHE Logo" class="topbar-logo" onerror="this.style.display='none'" />
+      <span class="topbar-college">College of Human Ecology</span>
+    </div>
+    <div class="topbar-right" id="datetimeDisplay"></div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="logo-wrap">
+        <h1 class="logo-title">CHE DO Portal</h1>
+      </div>
+      <p class="logo-subtitle">DigiCART – Development Office Internal System</p>
+      <p class="tagline">For CHE DO Members Only</p>
+      <a href="index.html" class="back-btn">← Back to Main Portal</a>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="apps-nav" aria-label="CHE DO Applications">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-item">← Main Portal</a>
+      <a href="#approval-room" class="nav-item">Approval – Room</a>
+      <a href="#approval-vehicle" class="nav-item">Approval – Vehicle</a>
+      <a href="#dtr" class="nav-item">DTR Generator</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-grid">
+    <section class="apps-section" aria-label="CHE DO Web Applications">
+
+      <!-- Banner -->
+      <div class="do-banner">
+        <div class="do-banner-icon">🏛️</div>
+        <div class="do-banner-text">
+          <h2>Development Office Portal</h2>
+          <p>This is the internal portal for CHE Development Office members. All apps on this page require an authorized CHE DO Google account. Unauthorized access attempts will be blocked by Google.</p>
+          <div class="do-notice">🔐 Restricted Access — CHE DO Members Only</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">CHE DO Applications</h2>
+      <div class="do-divider">Internal Apps</div>
+
+      <div class="apps-grid">
+
+        <!-- Approval: Room Reservation -->
+        <div class="app-card do-app-card" id="approval-room">
+          <div class="app-card-header">
+            <div class="app-icon">✅</div>
+            <div class="app-meta">
+              <h3 class="app-name">Approval – Room Reservation</h3>
+              <span class="access-badge restricted">CHE DO Members</span>
+            </div>
+          </div>
+          <p class="app-desc">Review, approve, or reject submitted room reservation requests from faculty and staff.</p>
+          <div class="restriction-note chedo-note">
+            <span class="lock">🔒</span>
+            <span>Authorized CHE DO emails only. You will be prompted to sign in with your Google account.</span>
+          </div>
+          <a href="#" class="app-btn" data-link="PASTE_APPROVAL_ROOM_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- Approval: Vehicle Reservation -->
+        <div class="app-card do-app-card" id="approval-vehicle">
+          <div class="app-card-header">
+            <div class="app-icon">🚐</div>
+            <div class="app-meta">
+              <h3 class="app-name">Approval – Vehicle Reservation</h3>
+              <span class="access-badge restricted">CHE DO Members</span>
+            </div>
+          </div>
+          <p class="app-desc">Review, approve, or reject vehicle reservation requests for official trips and activities.</p>
+          <div class="restriction-note chedo-note">
+            <span class="lock">🔒</span>
+            <span>Authorized CHE DO emails only. You will be prompted to sign in with your Google account.</span>
+          </div>
+          <a href="#" class="app-btn" data-link="PASTE_APPROVAL_VEHICLE_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <!-- DTR Generator -->
+        <div class="app-card do-app-card" id="dtr">
+          <div class="app-card-header">
+            <div class="app-icon">🕐</div>
+            <div class="app-meta">
+              <h3 class="app-name">DTR Generator</h3>
+              <span class="access-badge restricted">CHE DO Members</span>
+            </div>
+          </div>
+          <p class="app-desc">Automatically generate Daily Time Records for CHE DO personnel from logged attendance data.</p>
+          <div class="restriction-note chedo-note">
+            <span class="lock">🔒</span>
+            <span>Authorized CHE DO emails only. You will be prompted to sign in with your Google account.</span>
+          </div>
+          <a href="#" class="app-btn" data-link="PASTE_DTR_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="footerYear"></span> DigiCART – CHE DO Portal &mdash; College of Human Ecology, UPLB &mdash; <a href="index.html" style="color:rgba(255,255,255,0.5);">Back to Main Portal</a></p>
+  </footer>
+
+  <script>
+    // DATE & TIME
+    function updateDateTime() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+      const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false });
+      const el = document.getElementById('datetimeDisplay');
+      if (el) el.textContent = `${dateStr} | ${timeStr}`;
+      document.getElementById('footerYear').textContent = now.getFullYear();
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 30000);
+
+    // WEATHER
+    async function fetchWeather() {
+      try {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=14.1717&longitude=121.2411&hourly=precipitation_probability&forecast_days=1&timezone=Asia%2FManila');
+        const data = await res.json();
+        const pct = data.hourly.precipitation_probability[new Date().getHours()] ?? 0;
+        document.getElementById('weatherPct').textContent = `${pct}%`;
+        const icon = document.querySelector('.weather-icon');
+        if (icon) icon.textContent = pct >= 70 ? '⛈️' : pct >= 40 ? '🌦️' : pct >= 20 ? '🌤️' : '☀️';
+      } catch(e) {}
+    }
+    fetchWeather();
+
+    // OPEN APP
+    function openApp(el) {
+      el.preventDefault();
+      const link = el.getAttribute('data-link');
+      if (!link || link.startsWith('PASTE_')) {
+        alert('🔗 Link not yet configured. Open chedo.html and replace the placeholder URL for this app.');
+        return;
+      }
+      window.open(link, '_blank', 'noopener,noreferrer');
+    }
+
+    // NAV HIGHLIGHT
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
