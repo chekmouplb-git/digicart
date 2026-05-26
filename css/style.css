@@ -50,9 +50,31 @@ body {
   border-bottom: 1px solid var(--gray-200);
   font-size: 13px;
   color: var(--gray-600);
+  position: relative;
 }
 
 .topbar-left { display: flex; align-items: center; gap: 10px; }
+
+.topbar-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.topbar-logo {
+  height: 36px;
+  width: auto;
+}
+.topbar-college {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--maroon);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
 
 .weather {
   display: flex;
