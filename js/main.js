@@ -55,12 +55,33 @@ async function fetchWeather() {
 fetchWeather();
 
 // ── RENDER EVENTS ─────────────────────────────
+// function renderEvents() {
+//   const container = document.getElementById('eventsList');
+//   if (!container || !DIGICART_DATA.events) return;
+//   let html = '';
+//   DIGICART_DATA.events.forEach(group => {
+//     html += `<div class="event-month">${group.month}</div>`;
+//     group.items.forEach(ev => {
+//       html += `
+//         <div class="event-item">
+//           <span class="event-day">${ev.day}</span>
+//           <span class="event-name">${ev.name}</span>
+//         </div>`;
+//     });
+//   });
+//   container.innerHTML = html;
+// }
+// renderEvents();
+
 function renderEvents() {
   const container = document.getElementById('eventsList');
   if (!container || !DIGICART_DATA.events) return;
+
   let html = '';
+
   DIGICART_DATA.events.forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
+
     group.items.forEach(ev => {
       html += `
         <div class="event-item">
@@ -69,9 +90,34 @@ function renderEvents() {
         </div>`;
     });
   });
+
   container.innerHTML = html;
 }
-renderEvents();
+
+async function loadEvents() {
+  try {
+
+    const response = await fetch(
+      'https://script.google.com/macros/s/AKfycbyyoq05p-g65hvr1cmQtrhZhJey9HM6GNI3EWI9Vp_mpGX1ljPN4itFm2rS1dCwoP3B/exec'
+    );
+
+    const events = await response.json();
+
+    DIGICART_DATA.events = events;
+
+    renderEvents();
+
+  } catch (error) {
+
+    console.error(
+      'Failed to load events:',
+      error
+    );
+
+  }
+}
+
+loadEvents();
 
 // ── RENDER MEMOS ──────────────────────────────
 function renderMemos() {
