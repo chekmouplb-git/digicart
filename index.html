@@ -41,15 +41,64 @@
     </div>
   </header>
 
-  <!-- NAV: WEB APPS -->
-  <nav class="apps-nav" aria-label="Web Applications">
+  <!-- NAV -->
+  <nav class="apps-nav" aria-label="Main Navigation">
     <div class="nav-inner">
-      <a href="#docusign" class="nav-item" data-app="docusign">DocuSign Tracker</a>
-      <a href="#room" class="nav-item" data-app="room">Room Reservation</a>
-      <a href="#vehicle" class="nav-item restricted-nav" data-app="vehicle">Vehicle Reservation</a>
-      <a href="#fund" class="nav-item restricted-nav" data-app="fund">Fund Utilization</a>
-      <a href="#feedback" class="nav-item" data-app="feedback">Feedbacks Dashboard</a>
-      <a href="chedo.html" class="nav-item special-nav" data-app="chedo">🔐 CHE DO Portal</a>
+
+      <!-- Home -->
+      <a href="#" class="nav-item" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+        🏠 Home
+      </a>
+
+      <!-- Applications dropdown -->
+      <div class="nav-dropdown">
+        <button class="nav-item nav-dropdown-btn" onclick="toggleDropdown(event)">
+          📂 Applications <span class="nav-chevron">▾</span>
+        </button>
+        <div class="nav-dropdown-menu" id="appsDropdown">
+          <a href="#docusign" class="dropdown-item" onclick="closeDropdown()">
+            <span class="dd-icon">📄</span>
+            <span class="dd-text">
+              <span class="dd-name">DocuSign Tracker</span>
+              <span class="dd-badge open">Open Access</span>
+            </span>
+          </a>
+          <a href="#room" class="dropdown-item" onclick="closeDropdown()">
+            <span class="dd-icon">🏫</span>
+            <span class="dd-text">
+              <span class="dd-name">Room Reservation</span>
+              <span class="dd-badge open">Open Access</span>
+            </span>
+          </a>
+          <a href="#vehicle" class="dropdown-item" onclick="closeDropdown()">
+            <span class="dd-icon">🚐</span>
+            <span class="dd-text">
+              <span class="dd-name">Vehicle Reservation</span>
+              <span class="dd-badge restricted">Restricted</span>
+            </span>
+          </a>
+          <a href="#fund" class="dropdown-item" onclick="closeDropdown()">
+            <span class="dd-icon">💰</span>
+            <span class="dd-text">
+              <span class="dd-name">Fund Utilization</span>
+              <span class="dd-badge restricted">Restricted</span>
+            </span>
+          </a>
+          <a href="#feedback" class="dropdown-item" onclick="closeDropdown()">
+            <span class="dd-icon">📊</span>
+            <span class="dd-text">
+              <span class="dd-name">Feedbacks Dashboard</span>
+              <span class="dd-badge open">Open Access</span>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CHE DO Portal -->
+      <a href="chedo.html" class="nav-item special-nav">
+        🔐 CHE DO Portal
+      </a>
+
     </div>
   </nav>
 
