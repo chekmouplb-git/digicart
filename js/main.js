@@ -5,13 +5,12 @@
 // ── DATE & TIME ──────────────────────────────
 function updateDateTime() {
   const now = new Date();
-  const dateOpts = { day: '2-digit', month: 'short', year: 'numeric' };
-  const timeOpts = { hour: '2-digit', minute: '2-digit', hour12: false };
-  const dateStr = now.toLocaleDateString('en-GB', dateOpts).toUpperCase();
-  const timeStr = now.toLocaleTimeString('en-GB', timeOpts);
+  const dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+  const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false });
   const el = document.getElementById('datetimeDisplay');
   if (el) el.textContent = `${dateStr} | ${timeStr}`;
-  document.getElementById('footerYear').textContent = now.getFullYear();
+  const fy = document.getElementById('footerYear');
+  if (fy) fy.textContent = now.getFullYear();
 }
 updateDateTime();
 setInterval(updateDateTime, 30000);
@@ -26,31 +25,16 @@ setInterval(updateDateTime, 30000);
 })();
 
 // ── WEATHER ──────────────────────────────────
-// Uses Open-Meteo (free, no API key needed) based on Los Baños, Laguna
 async function fetchWeather() {
   try {
-    const lat = 14.1717;
-    const lon = 121.2411;
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability&forecast_days=1&timezone=Asia%2FManila`;
-    const res = await fetch(url);
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=14.1717&longitude=121.2411&hourly=precipitation_probability&forecast_days=1&timezone=Asia%2FManila');
     const data = await res.json();
-    const hours = data.hourly.precipitation_probability;
-    const now = new Date().getHours();
-    const pct = hours[now] ?? hours[0] ?? 0;
+    const pct = data.hourly.precipitation_probability[new Date().getHours()] ?? 0;
     const el = document.getElementById('weatherPct');
     if (el) el.textContent = `${pct}%`;
-
     const icon = document.querySelector('.weather-icon');
-    if (icon) {
-      if (pct >= 70) icon.textContent = '⛈️';
-      else if (pct >= 40) icon.textContent = '🌦️';
-      else if (pct >= 20) icon.textContent = '🌤️';
-      else icon.textContent = '☀️';
-    }
-  } catch (e) {
-    const el = document.getElementById('weatherPct');
-    if (el) el.textContent = '—%';
-  }
+    if (icon) icon.textContent = pct >= 70 ? '⛈️' : pct >= 40 ? '🌦️' : pct >= 20 ? '🌤️' : '☀️';
+  } catch (e) {}
 }
 fetchWeather();
 
@@ -62,11 +46,10 @@ function renderEvents() {
   DIGICART_DATA.events.forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
     group.items.forEach(ev => {
-      html += `
-        <div class="event-item">
-          <span class="event-day">${ev.day}</span>
-          <span class="event-name">${ev.name}</span>
-        </div>`;
+      html += `<div class="event-item">
+        <span class="event-day">${ev.day}</span>
+        <span class="event-name">${ev.name}</span>
+      </div>`;
     });
   });
   container.innerHTML = html;
@@ -77,15 +60,11 @@ renderEvents();
 function renderMemos() {
   const container = document.getElementById('memoList');
   if (!container || !DIGICART_DATA.memos) return;
-  let html = '';
-  DIGICART_DATA.memos.forEach(m => {
-    html += `
-      <div class="update-item">
-        <span class="update-tag">${m.tag}</span>
-        <span class="update-text">${m.text}</span>
-      </div>`;
-  });
-  container.innerHTML = html;
+  container.innerHTML = DIGICART_DATA.memos.map(m => `
+    <div class="update-item">
+      <span class="update-tag">${m.tag}</span>
+      <span class="update-text">${m.text}</span>
+    </div>`).join('');
 }
 renderMemos();
 
@@ -93,92 +72,79 @@ renderMemos();
 function renderNews() {
   const container = document.getElementById('newsList');
   if (!container || !DIGICART_DATA.news) return;
-  let html = '';
-  DIGICART_DATA.news.forEach(n => {
-    html += `<div class="news-item">${n.text}</div>`;
-  });
-  container.innerHTML = html;
+  container.innerHTML = DIGICART_DATA.news.map(n =>
+    `<div class="news-item">${n.text}</div>`).join('');
 }
 renderNews();
+
+// ── PAGE SWITCHING (Home / Applications) ──────
+function showPage(page, clickedNav) {
+  // Toggle page visibility
+  document.getElementById('page-home').style.display = page === 'home' ? '' : 'none';
+  document.getElementById('page-apps').style.display = page === 'apps' ? '' : 'none';
+
+  // Update active nav item
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (clickedNav) clickedNav.classList.add('active');
+
+  // Reset search when switching to apps
+  if (page === 'apps') {
+    clearSearch();
+    document.getElementById('appSearch').focus();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── SEARCH / FILTER APPS ──────────────────────
+function filterApps(query) {
+  const q = query.trim().toLowerCase();
+  const cards = document.querySelectorAll('#appsGrid .app-card');
+  const clearBtn = document.getElementById('searchClear');
+  const hint = document.getElementById('searchHint');
+  const noResults = document.getElementById('noResults');
+  const noResultsTerm = document.getElementById('noResultsTerm');
+
+  clearBtn.style.display = q ? 'block' : 'none';
+
+  let visible = 0;
+  cards.forEach(card => {
+    const keywords = (card.getAttribute('data-name') || '').toLowerCase();
+    const name = card.querySelector('.app-name')?.textContent.toLowerCase() || '';
+    const match = !q || keywords.includes(q) || name.includes(q);
+    card.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+
+  // Update hint
+  hint.innerHTML = q
+    ? `Found <strong>${visible}</strong> application${visible !== 1 ? 's' : ''} for "<em>${query}</em>"`
+    : `Showing all <strong>5</strong> applications`;
+
+  // No results
+  noResults.style.display = visible === 0 ? 'flex' : 'none';
+  noResults.style.flexDirection = 'column';
+  noResults.style.alignItems = 'center';
+  if (noResultsTerm) noResultsTerm.textContent = query;
+}
+
+function clearSearch() {
+  const input = document.getElementById('appSearch');
+  if (input) { input.value = ''; filterApps(''); input.focus(); }
+}
 
 // ── OPEN APP LINKS ─────────────────────────────
 function openApp(el) {
   el.preventDefault && el.preventDefault();
   const link = el.getAttribute('data-link');
   if (!link || link.startsWith('PASTE_')) {
-    showToast('🔗 Link not yet configured. Edit js/data.js or the HTML to add the URL.');
+    showToast('🔗 Link not yet configured. Open index.html and replace the placeholder URL for this app.');
     return;
   }
   window.open(link, '_blank', 'noopener,noreferrer');
 }
 
-// ── CHE DO PORTAL REVEAL (from nav click) ────
-function revealCHEDO(e) {
-  e.preventDefault();
-  const card = document.getElementById('chedo');
-  if (!card) return;
-
-  // If already visible, just scroll to it
-  if (card.classList.contains('chedo-revealed')) {
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    card.style.outline = '2px solid var(--green-light)';
-    setTimeout(() => card.style.outline = '', 1200);
-    return;
-  }
-
-  // Reveal with animation
-  card.classList.remove('chedo-hidden');
-  card.classList.add('chedo-revealed');
-
-  // Highlight nav item
-  navItems.forEach(n => n.classList.remove('active'));
-  document.querySelector('[data-app="chedo"]').classList.add('active');
-
-  // Scroll to card smoothly after short delay
-  setTimeout(() => {
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
-
-  showToast('🔐 CHE DO Portal revealed. Scroll down to access it.');
-}
-
-function toggleCHEDO() {
-  const subapps = document.getElementById('chedoSubapps');
-  const arrow = document.getElementById('chedoArrow');
-  if (!subapps) return;
-  const isOpen = subapps.classList.toggle('open');
-  arrow.textContent = isOpen ? '↓' : '→';
-  if (isOpen) subapps.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ── ACTIVE NAV HIGHLIGHT ──────────────────────
-const navItems = document.querySelectorAll('.nav-item');
-navItems.forEach(item => {
-  item.addEventListener('click', () => {
-    navItems.forEach(n => n.classList.remove('active'));
-    item.classList.add('active');
-  });
-});
-
-// ── DROPDOWN TOGGLE ───────────────────────────
-function toggleDropdown(e) {
-  e.stopPropagation();
-  const dropdown = e.currentTarget.closest('.nav-dropdown');
-  const isOpen = dropdown.classList.toggle('open');
-  // Close others
-  document.querySelectorAll('.nav-dropdown').forEach(d => {
-    if (d !== dropdown) d.classList.remove('open');
-  });
-}
-
-function closeDropdown() {
-  document.querySelectorAll('.nav-dropdown').forEach(d => d.classList.remove('open'));
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', () => closeDropdown());
-
-
+// ── TOAST NOTIFICATION ────────────────────────
 function showToast(msg) {
   let toast = document.getElementById('digi-toast');
   if (!toast) {
