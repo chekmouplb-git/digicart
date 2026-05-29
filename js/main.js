@@ -1,5 +1,6 @@
 // =============================================
 //  DigiCART – Main JavaScript
+//  Shared across index.html, apps.html, chedo.html
 // =============================================
 
 // ── DATE & TIME ──────────────────────────────
@@ -18,10 +19,8 @@ setInterval(updateDateTime, 30000);
 // ── TAGLINE ───────────────────────────────────
 (function () {
   const el = document.getElementById('tagline');
-  const tags = DIGICART_DATA.taglines;
-  if (el && tags && tags.length) {
-    el.textContent = tags[Math.floor(Math.random() * tags.length)];
-  }
+  if (!el || !DIGICART_DATA?.taglines?.length) return;
+  el.textContent = DIGICART_DATA.taglines[Math.floor(Math.random() * DIGICART_DATA.taglines.length)];
 })();
 
 // ── WEATHER ──────────────────────────────────
@@ -38,10 +37,10 @@ async function fetchWeather() {
 }
 fetchWeather();
 
-// ── RENDER EVENTS ─────────────────────────────
+// ── RENDER EVENTS (index.html only) ──────────
 function renderEvents() {
   const container = document.getElementById('eventsList');
-  if (!container || !DIGICART_DATA.events) return;
+  if (!container || !DIGICART_DATA?.events) return;
   let html = '';
   DIGICART_DATA.events.forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
@@ -56,10 +55,10 @@ function renderEvents() {
 }
 renderEvents();
 
-// ── RENDER MEMOS ──────────────────────────────
+// ── RENDER MEMOS (index.html only) ───────────
 function renderMemos() {
   const container = document.getElementById('memoList');
-  if (!container || !DIGICART_DATA.memos) return;
+  if (!container || !DIGICART_DATA?.memos) return;
   container.innerHTML = DIGICART_DATA.memos.map(m => `
     <div class="update-item">
       <span class="update-tag">${m.tag}</span>
@@ -68,63 +67,46 @@ function renderMemos() {
 }
 renderMemos();
 
-// ── RENDER NEWS ───────────────────────────────
+// ── RENDER NEWS (index.html only) ─────────────
 function renderNews() {
   const container = document.getElementById('newsList');
-  if (!container || !DIGICART_DATA.news) return;
+  if (!container || !DIGICART_DATA?.news) return;
   container.innerHTML = DIGICART_DATA.news.map(n =>
     `<div class="news-item">${n.text}</div>`).join('');
 }
 renderNews();
 
-// ── PAGE SWITCHING (Home / Applications) ──────
-function showPage(page, clickedNav) {
-  // Toggle page visibility
-  document.getElementById('page-home').style.display = page === 'home' ? '' : 'none';
-  document.getElementById('page-apps').style.display = page === 'apps' ? '' : 'none';
-
-  // Update active nav item
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (clickedNav) clickedNav.classList.add('active');
-
-  // Reset search when switching to apps
-  if (page === 'apps') {
-    clearSearch();
-    document.getElementById('appSearch').focus();
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ── SEARCH / FILTER APPS ──────────────────────
+// ── SEARCH / FILTER APPS (apps.html only) ────
 function filterApps(query) {
   const q = query.trim().toLowerCase();
   const cards = document.querySelectorAll('#appsGrid .app-card');
+  if (!cards.length) return;
+
   const clearBtn = document.getElementById('searchClear');
   const hint = document.getElementById('searchHint');
   const noResults = document.getElementById('noResults');
   const noResultsTerm = document.getElementById('noResultsTerm');
 
-  clearBtn.style.display = q ? 'block' : 'none';
+  if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
 
   let visible = 0;
   cards.forEach(card => {
     const keywords = (card.getAttribute('data-name') || '').toLowerCase();
-    const name = card.querySelector('.app-name')?.textContent.toLowerCase() || '';
+    const name = (card.querySelector('.app-name')?.textContent || '').toLowerCase();
     const match = !q || keywords.includes(q) || name.includes(q);
     card.style.display = match ? '' : 'none';
     if (match) visible++;
   });
 
-  // Update hint
-  hint.innerHTML = q
+  if (hint) hint.innerHTML = q
     ? `Found <strong>${visible}</strong> application${visible !== 1 ? 's' : ''} for "<em>${query}</em>"`
-    : `Showing all <strong>5</strong> applications`;
+    : `Showing all <strong>${cards.length}</strong> applications`;
 
-  // No results
-  noResults.style.display = visible === 0 ? 'flex' : 'none';
-  noResults.style.flexDirection = 'column';
-  noResults.style.alignItems = 'center';
+  if (noResults) {
+    noResults.style.display = visible === 0 ? 'flex' : 'none';
+    noResults.style.flexDirection = 'column';
+    noResults.style.alignItems = 'center';
+  }
   if (noResultsTerm) noResultsTerm.textContent = query;
 }
 
@@ -133,12 +115,12 @@ function clearSearch() {
   if (input) { input.value = ''; filterApps(''); input.focus(); }
 }
 
-// ── OPEN APP LINKS ─────────────────────────────
+// ── OPEN APP LINKS ────────────────────────────
 function openApp(el) {
   el.preventDefault && el.preventDefault();
   const link = el.getAttribute('data-link');
   if (!link || link.startsWith('PASTE_')) {
-    showToast('🔗 Link not yet configured. Open index.html and replace the placeholder URL for this app.');
+    showToast('🔗 Link not yet configured. Replace the placeholder URL for this app in the HTML file.');
     return;
   }
   window.open(link, '_blank', 'noopener,noreferrer');
