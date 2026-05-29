@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiCART – Applications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="weather">
+        <span class="weather-icon">🌧️</span>
+        <div class="weather-info">
+          <span class="weather-pct" id="weatherPct">—%</span>
+          <span class="weather-label">Chance of Raining</span>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <img src="assets/che-logo.png" alt="CHE Logo" class="topbar-logo" onerror="this.style.display='none'" />
+      <span class="topbar-college">College of Human Ecology</span>
+    </div>
+    <div class="topbar-right" id="datetimeDisplay"></div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1 class="logo-title">DigiCART</h1>
+      <p class="logo-subtitle">Digital College Administrative Repository for Transformation</p>
+      <p class="tagline">Web Applications</p>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="apps-nav" aria-label="Main Navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-item">Home</a>
+      <a href="apps.html" class="nav-item active">Applications</a>
+      <a href="chedo.html" class="nav-item special-nav">CHE Office of the Dean</a>
+    </div>
+  </nav>
+
+  <!-- APPLICATIONS CONTENT -->
+  <main class="page-section">
+    <div class="apps-page-wrap">
+
+      <!-- Search Bar -->
+      <div class="search-wrap">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="appSearch"
+            class="search-input"
+            placeholder="Search applications..."
+            oninput="filterApps(this.value)"
+            autocomplete="off"
+          />
+          <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">✕</button>
+        </div>
+        <p class="search-hint" id="searchHint">Showing all <strong>5</strong> applications</p>
+      </div>
+
+      <!-- App Cards -->
+      <div class="apps-grid" id="appsGrid">
+
+        <div class="app-card" data-name="docusign tracker document signing">
+          <div class="app-card-header">
+            <div class="app-icon">📄</div>
+            <div class="app-meta">
+              <h3 class="app-name">DocuSign Tracker</h3>
+              <span class="access-badge open">Open Access</span>
+            </div>
+          </div>
+          <p class="app-desc">Track and monitor document signing statuses, workflows, and signatories in real time.</p>
+          <a href="#" class="app-btn" data-link="PASTE_DOCUSIGN_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <div class="app-card" data-name="room reservation facility booking">
+          <div class="app-card-header">
+            <div class="app-icon">🏫</div>
+            <div class="app-meta">
+              <h3 class="app-name">Room Reservation</h3>
+              <span class="access-badge open">Open Access</span>
+            </div>
+          </div>
+          <p class="app-desc">Reserve college rooms and facilities. Check availability and submit booking requests easily.</p>
+          <a href="#" class="app-btn" data-link="PASTE_ROOM_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <div class="app-card restricted" data-name="vehicle reservation transport van">
+          <div class="app-card-header">
+            <div class="app-icon">🚐</div>
+            <div class="app-meta">
+              <h3 class="app-name">Vehicle Reservation</h3>
+              <span class="access-badge restricted">Restricted</span>
+            </div>
+          </div>
+          <p class="app-desc">Request and schedule college vehicle use for official trips and activities.</p>
+          <div class="restriction-note">
+            <span class="lock">🔒</span>
+            <span>Access limited to authorized personnel. You will be prompted to log in with your approved Google account.</span>
+          </div>
+          <a href="#" class="app-btn restricted-btn" data-link="PASTE_VEHICLE_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <div class="app-card restricted" data-name="fund utilization budget finance expenditure">
+          <div class="app-card-header">
+            <div class="app-icon">💰</div>
+            <div class="app-meta">
+              <h3 class="app-name">Fund Utilization</h3>
+              <span class="access-badge restricted">Restricted</span>
+            </div>
+          </div>
+          <p class="app-desc">View and manage budget allocations, expenditures, and fund utilization reports.</p>
+          <div class="restriction-note">
+            <span class="lock">🔒</span>
+            <span>Access limited to authorized personnel. You will be prompted to log in with your approved Google account.</span>
+          </div>
+          <a href="#" class="app-btn restricted-btn" data-link="PASTE_FUND_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+        <div class="app-card" data-name="feedbacks dashboard survey responses">
+          <div class="app-card-header">
+            <div class="app-icon">📊</div>
+            <div class="app-meta">
+              <h3 class="app-name">Feedbacks Dashboard</h3>
+              <span class="access-badge open">Open Access</span>
+            </div>
+          </div>
+          <p class="app-desc">Browse and analyze collected feedback from students, faculty, and stakeholders.</p>
+          <a href="#" class="app-btn" data-link="PASTE_FEEDBACK_URL_HERE" onclick="openApp(this)">
+            Open App <span class="arrow">→</span>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- No results -->
+      <div class="no-results" id="noResults" style="display:none;">
+        <span class="no-results-icon">🔎</span>
+        <p>No applications found for "<span id="noResultsTerm"></span>"</p>
+        <button onclick="clearSearch()">Clear search</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="footerYear"></span> DigiCART &mdash; Digital College Administrative Repository for Transformation &mdash; College of Human Ecology, UPLB</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
