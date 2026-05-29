@@ -14,7 +14,7 @@
   <!-- TOP BAR -->
   <div class="topbar">
     <div class="topbar-left">
-      <div class="weather" id="weatherWidget">
+      <div class="weather">
         <span class="weather-icon">🌧️</span>
         <div class="weather-info">
           <span class="weather-pct" id="weatherPct">—%</span>
@@ -33,9 +33,7 @@
   <header class="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
-      <div class="logo-wrap">
-        <h1 class="logo-title">DigiCART</h1>
-      </div>
+      <h1 class="logo-title">DigiCART</h1>
       <p class="logo-subtitle">Digital College Administrative Repository for Transformation</p>
       <p class="tagline" id="tagline">Makaekolohiyang Araw!</p>
     </div>
@@ -44,75 +42,67 @@
   <!-- NAV -->
   <nav class="apps-nav" aria-label="Main Navigation">
     <div class="nav-inner">
-
-      <!-- Home -->
-      <a href="#" class="nav-item" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
-        🏠 Home
-      </a>
-
-      <!-- Applications dropdown -->
-      <div class="nav-dropdown">
-        <button class="nav-item nav-dropdown-btn" onclick="toggleDropdown(event)">
-          📂 Applications <span class="nav-chevron">▾</span>
-        </button>
-        <div class="nav-dropdown-menu" id="appsDropdown">
-          <a href="#docusign" class="dropdown-item" onclick="closeDropdown()">
-            <span class="dd-icon">📄</span>
-            <span class="dd-text">
-              <span class="dd-name">DocuSign Tracker</span>
-              <span class="dd-badge open">Open Access</span>
-            </span>
-          </a>
-          <a href="#room" class="dropdown-item" onclick="closeDropdown()">
-            <span class="dd-icon">🏫</span>
-            <span class="dd-text">
-              <span class="dd-name">Room Reservation</span>
-              <span class="dd-badge open">Open Access</span>
-            </span>
-          </a>
-          <a href="#vehicle" class="dropdown-item" onclick="closeDropdown()">
-            <span class="dd-icon">🚐</span>
-            <span class="dd-text">
-              <span class="dd-name">Vehicle Reservation</span>
-              <span class="dd-badge restricted">Restricted</span>
-            </span>
-          </a>
-          <a href="#fund" class="dropdown-item" onclick="closeDropdown()">
-            <span class="dd-icon">💰</span>
-            <span class="dd-text">
-              <span class="dd-name">Fund Utilization</span>
-              <span class="dd-badge restricted">Restricted</span>
-            </span>
-          </a>
-          <a href="#feedback" class="dropdown-item" onclick="closeDropdown()">
-            <span class="dd-icon">📊</span>
-            <span class="dd-text">
-              <span class="dd-name">Feedbacks Dashboard</span>
-              <span class="dd-badge open">Open Access</span>
-            </span>
-          </a>
-        </div>
-      </div>
-
-      <!-- CHE DO Portal -->
-      <a href="chedo.html" class="nav-item special-nav">
-        🔐 CHE DO Portal
-      </a>
-
+      <a href="#" class="nav-item active" id="navHome" onclick="showPage('home', this); return false;">Home</a>
+      <a href="#" class="nav-item" id="navApps" onclick="showPage('apps', this); return false;">Applications</a>
+      <a href="chedo.html" class="nav-item special-nav">CHE Office of the Dean</a>
     </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
-  <main class="main-grid">
+  <!-- ══════════════════════════════════════ -->
+  <!-- PAGE: HOME                            -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="page-home" class="page-section">
+    <div class="home-grid">
 
-    <!-- LEFT: APP CARDS -->
-    <section class="apps-section" aria-label="Available Web Applications">
-      <h2 class="section-title">Web Applications</h2>
+      <!-- Upcoming Events -->
+      <div class="sidebar-card events-card">
+        <h2 class="sidebar-title">Upcoming Events</h2>
+        <div class="events-list" id="eventsList"></div>
+      </div>
 
-      <div class="apps-grid">
+      <!-- Updates -->
+      <div class="sidebar-card updates-card">
+        <h2 class="sidebar-title updates-title">Updates</h2>
+        <div class="updates-section">
+          <div class="updates-category">Memo</div>
+          <div class="updates-list" id="memoList"></div>
+        </div>
+        <div class="updates-section">
+          <div class="updates-category">News</div>
+          <div class="updates-list" id="newsList"></div>
+        </div>
+      </div>
 
-        <!-- DocuSign Tracker -->
-        <div class="app-card" id="docusign">
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- PAGE: APPLICATIONS                    -->
+  <!-- ══════════════════════════════════════ -->
+  <div id="page-apps" class="page-section" style="display:none;">
+    <div class="apps-page-wrap">
+
+      <!-- Search Bar -->
+      <div class="search-wrap">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="appSearch"
+            class="search-input"
+            placeholder="Search applications..."
+            oninput="filterApps(this.value)"
+            autocomplete="off"
+          />
+          <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">✕</button>
+        </div>
+        <p class="search-hint" id="searchHint">Showing all <strong>5</strong> applications</p>
+      </div>
+
+      <!-- App Cards -->
+      <div class="apps-grid" id="appsGrid">
+
+        <div class="app-card" id="docusign" data-name="docusign tracker document signing">
           <div class="app-card-header">
             <div class="app-icon">📄</div>
             <div class="app-meta">
@@ -126,8 +116,7 @@
           </a>
         </div>
 
-        <!-- Room Reservation -->
-        <div class="app-card" id="room">
+        <div class="app-card" id="room" data-name="room reservation facility booking">
           <div class="app-card-header">
             <div class="app-icon">🏫</div>
             <div class="app-meta">
@@ -141,8 +130,7 @@
           </a>
         </div>
 
-        <!-- Vehicle Reservation -->
-        <div class="app-card restricted" id="vehicle">
+        <div class="app-card restricted" id="vehicle" data-name="vehicle reservation transport van">
           <div class="app-card-header">
             <div class="app-icon">🚐</div>
             <div class="app-meta">
@@ -160,8 +148,7 @@
           </a>
         </div>
 
-        <!-- Fund Utilization -->
-        <div class="app-card restricted" id="fund">
+        <div class="app-card restricted" id="fund" data-name="fund utilization budget finance expenditure">
           <div class="app-card-header">
             <div class="app-icon">💰</div>
             <div class="app-meta">
@@ -179,8 +166,7 @@
           </a>
         </div>
 
-        <!-- Feedbacks Dashboard -->
-        <div class="app-card" id="feedback">
+        <div class="app-card" id="feedback" data-name="feedbacks dashboard survey responses">
           <div class="app-card-header">
             <div class="app-icon">📊</div>
             <div class="app-meta">
@@ -195,40 +181,16 @@
         </div>
 
       </div>
-    </section>
 
-    <!-- RIGHT: SIDEBAR -->
-    <aside class="sidebar">
-
-      <!-- Upcoming Events -->
-      <div class="sidebar-card events-card">
-        <h2 class="sidebar-title">Upcoming Events</h2>
-        <div class="events-list" id="eventsList">
-          <!-- populated by JS -->
-        </div>
+      <!-- No results message -->
+      <div class="no-results" id="noResults" style="display:none;">
+        <span class="no-results-icon">🔎</span>
+        <p>No applications found for "<span id="noResultsTerm"></span>"</p>
+        <button onclick="clearSearch()">Clear search</button>
       </div>
 
-      <!-- Announcements / Updates -->
-      <div class="sidebar-card updates-card">
-        <h2 class="sidebar-title updates-title">Updates</h2>
-
-        <div class="updates-section">
-          <div class="updates-category">Memo</div>
-          <div class="updates-list" id="memoList">
-            <!-- populated by JS -->
-          </div>
-        </div>
-
-        <div class="updates-section">
-          <div class="updates-category">News</div>
-          <div class="updates-list" id="newsList">
-            <!-- populated by JS -->
-          </div>
-        </div>
-      </div>
-
-    </aside>
-  </main>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <p>© <span id="footerYear"></span> DigiCART &mdash; Digital College Administrative Repository for Transformation &mdash; College of Human Ecology, UPLB</p>
