@@ -117,21 +117,13 @@ function clearSearch() {
 
 // ── OPEN APP LINKS ────────────────────────────
 function openApp(el) {
-  // Use the global event object to prevent the '#' jump
-  if (window.event) {
-    window.event.preventDefault();
-  }
-
   const link = el.getAttribute('data-link');
-
-  // Check if link exists or is a placeholder
   if (!link || link.startsWith('PASTE_')) {
     showToast('🔗 Link not yet configured. Replace the placeholder URL in the HTML file.');
-    return;
+    return false;
   }
-
-  // Open the link
   window.open(link, '_blank', 'noopener,noreferrer');
+  return false;
 }
 
 // ── TOAST NOTIFICATION ────────────────────────
