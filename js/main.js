@@ -77,6 +77,16 @@ function renderNews() {
 renderNews();
 
 // ── SEARCH / FILTER APPS (apps.html only) ────
+
+// Set the initial count dynamically on page load
+(function initAppCount() {
+  const hint = document.getElementById('searchHint');
+  const cards = document.querySelectorAll('#appsGrid .app-card');
+  if (hint && cards.length) {
+    hint.innerHTML = `Showing all <strong>${cards.length}</strong> application${cards.length !== 1 ? 's' : ''}`;
+  }
+})();
+
 function filterApps(query) {
   const q = query.trim().toLowerCase();
   const cards = document.querySelectorAll('#appsGrid .app-card');
