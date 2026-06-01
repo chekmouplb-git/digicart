@@ -132,8 +132,83 @@ function openApp(el) {
     showToast('🔗 Link not yet configured. Replace the placeholder URL in the HTML file.');
     return false;
   }
-  window.open(link, '_blank', 'noopener,noreferrer');
+
+  // Check if the card is restricted
+  const card = el.closest('.app-card');
+  const isRestricted = card && card.classList.contains('restricted');
+
+  if (isRestricted) {
+    const appName = card.querySelector('.app-name')?.textContent || 'this application';
+    showRestrictedModal(appName, link);
+  } else {
+    window.open(link, '_blank', 'noopener,noreferrer');
+  }
   return false;
+}
+
+// ── RESTRICTED ACCESS MODAL ───────────────────
+function showRestrictedModal(appName, link) {
+  // Remove existing modal if any
+  const existing = document.getElementById('restricted-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'restricted-modal';
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeRestrictedModal()"></div>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-icon">🔒</div>
+      <h2 class="modal-title" id="modal-title">Restricted Application</h2>
+      <p class="modal-app-name">${appName}</p>
+      <div class="modal-body">
+        <p>This application is restricted to <strong>authorized personnel only</strong>.</p>
+        <div class="modal-steps">
+          <div class="modal-step">
+            <span class="step-num">1</span>
+            <span>Make sure you are signed in with your <strong>UP or authorized Google account</strong></span>
+          </div>
+          <div class="modal-step">
+            <span class="step-num">2</span>
+            <span>Click <strong>Continue</strong> — Google will verify your identity</span>
+          </div>
+          <div class="modal-step">
+            <span class="step-num">3</span>
+            <span>If access is denied, contact the <strong>CHE office</strong> to request authorization</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeRestrictedModal()">Cancel</button>
+        <button class="modal-btn continue" onclick="proceedToApp('${link}')">
+          Continue <span>→</span>
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // Animate in
+  requestAnimationFrame(() => modal.classList.add('modal-visible'));
+
+  // Close on Escape key
+  document.addEventListener('keydown', handleModalKeydown);
+}
+
+function handleModalKeydown(e) {
+  if (e.key === 'Escape') closeRestrictedModal();
+}
+
+function closeRestrictedModal() {
+  const modal = document.getElementById('restricted-modal');
+  if (!modal) return;
+  modal.classList.remove('modal-visible');
+  setTimeout(() => modal.remove(), 250);
+  document.removeEventListener('keydown', handleModalKeydown);
+}
+
+function proceedToApp(link) {
+  closeRestrictedModal();
+  window.open(link, '_blank', 'noopener,noreferrer');
 }
 
 // ── TOAST NOTIFICATION ────────────────────────
