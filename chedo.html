@@ -195,7 +195,7 @@
       <div class="apps-grid">
 
         <!-- Approval: Room Reservation -->
-        <div class="app-card do-app-card" id="approval-room">
+        <div class="app-card do-app-card restricted" id="approval-room">
           <div class="app-card-header">
             <div class="app-icon">✅</div>
             <div class="app-meta">
@@ -214,7 +214,7 @@
         </div>
 
         <!-- Approval: Vehicle Reservation -->
-        <div class="app-card do-app-card" id="approval-vehicle">
+        <div class="app-card do-app-card restricted" id="approval-vehicle">
           <div class="app-card-header">
             <div class="app-icon">🚐</div>
             <div class="app-meta">
@@ -233,7 +233,7 @@
         </div>
 
         <!-- DTR Generator -->
-        <div class="app-card do-app-card" id="dtr">
+        <div class="app-card do-app-card restricted" id="dtr">
           <div class="app-card-header">
             <div class="app-icon">🕐</div>
             <div class="app-meta">
@@ -260,50 +260,7 @@
     <p>© <span id="footerYear"></span> DigiCART – CHE DO Portal &mdash; College of Human Ecology, UPLB &mdash; <a href="index.html" style="color:rgba(255,255,255,0.5);">Back to Main Portal</a></p>
   </footer>
 
-  <script>
-    // DATE & TIME
-    function updateDateTime() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
-      const timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12:false });
-      const el = document.getElementById('datetimeDisplay');
-      if (el) el.textContent = `${dateStr} | ${timeStr}`;
-      document.getElementById('footerYear').textContent = now.getFullYear();
-    }
-    updateDateTime();
-    setInterval(updateDateTime, 30000);
-
-    // WEATHER
-    async function fetchWeather() {
-      try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=14.1717&longitude=121.2411&hourly=precipitation_probability&forecast_days=1&timezone=Asia%2FManila');
-        const data = await res.json();
-        const pct = data.hourly.precipitation_probability[new Date().getHours()] ?? 0;
-        document.getElementById('weatherPct').textContent = `${pct}%`;
-        const icon = document.querySelector('.weather-icon');
-        if (icon) icon.textContent = pct >= 70 ? '⛈️' : pct >= 40 ? '🌦️' : pct >= 20 ? '🌤️' : '☀️';
-      } catch(e) {}
-    }
-    fetchWeather();
-
-    // OPEN APP
-    function openApp(el) {
-      el.preventDefault();
-      const link = el.getAttribute('data-link');
-      if (!link || link.startsWith('PASTE_')) {
-        alert('🔗 Link not yet configured. Open chedo.html and replace the placeholder URL for this app.');
-        return;
-      }
-      window.open(link, '_blank', 'noopener,noreferrer');
-    }
-
-    // NAV HIGHLIGHT
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-      });
-    });
-  </script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
