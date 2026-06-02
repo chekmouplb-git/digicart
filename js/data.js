@@ -18,19 +18,21 @@ const DIGICART_DATA = {
   // How to get the link: in your Google Sheet →
   //   File → Share → Publish to web → pick the "Events" sheet
   //   + "Comma-separated values (.csv)" → Publish → copy the link.
-  eventsCsvUrl: "",
+  eventsCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjl9U-9jocCT_3HlPaZC7kqR1hwRBoE9Ko4Ps1SziEJHpahqFPKMGs-LvyQuBFmLUiS_l7fjdW_sBR/pub?gid=384620720&single=true&output=csv",
 
   // ── UPCOMING EVENTS (static fallback) ─────────────────────
   // Format: { month: "Month YYYY", day: "DD", name: "Event Name" }
   // Use <sup>ordinal</sup> for ordinals like 52<sup>nd</sup>
   events: [
     {
-      month: "November 2026",
+      month: "June 2026",
       items: [
-        { day: "28", name: "CHE 52<sup>nd</sup> Foundation Anniversary" },
-        { day: "28", name: "HEALS Awarding Ceremony" },
-        { day: "29", name: "Alumni Talks" },
-        { day: "30", name: "CHE Student Research Congress" },
+        { day: "2", name: "CHE 52<sup>nd</sup> Foundation Anniversary" },
+        { day: "5", name: "HEALS Awarding Ceremony" },
+        { day: "9", name: "Alumni Talks" },
+        { day: "10", name: "CHE Student Research Congress" },
+        { day: "27", name: "CHE Student Research Congress" },
+        { day: "29", name: "CHE Student Research Congress" },
       ]
     }
     // Add more months below:
