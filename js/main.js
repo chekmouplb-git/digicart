@@ -235,6 +235,8 @@ const CHEDO_ALLOWED_EMAILS = [
   'ddegala@up.edu.ph',
   'lbsolis@up.edu.ph',
   'mrvalenzuela2@up.edu.ph',
+  'che_do.uplb@up.edu.ph',
+  'che.kmo.uplb@up.edu.ph',
   // add more emails below this line...
 ];
 // ▲▲▲ END OF EMAIL LIST ▲▲▲
