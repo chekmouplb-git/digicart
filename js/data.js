@@ -7,17 +7,23 @@
 const DIGICART_DATA = {
 
   // ── LIVE EVENTS SOURCE (Google Sheet) ─────────────────────
-  // Paste the PUBLISHED CSV link of your "Events" sheet tab here to load
-  // Upcoming Events live from Google Sheets. Leave it as "" to use the
-  // static list below instead.
-  //
-  // Expected sheet layout (tab named "Events"):
+  // Sheet layout (tab named "Events"):
   //   A1 = Month (e.g. November)   B1 = Year (e.g. 2026)
   //   A2:A = Day of month          B2:B = Event name for that day
   //
-  // How to get the link: in your Google Sheet →
-  //   File → Share → Publish to web → pick the "Events" sheet
-  //   + "Comma-separated values (.csv)" → Publish → copy the link.
+  // RECOMMENDED METHOD (no CORS problems): paste your Sheet ID below.
+  //   1. Open your sheet normally. The URL looks like:
+  //        https://docs.google.com/spreadsheets/d/THIS_LONG_ID/edit#gid=...
+  //      Copy THIS_LONG_ID (the part between /d/ and /edit) into eventsSheetId.
+  //   2. Share the sheet: click "Share" → under General access choose
+  //      "Anyone with the link" → role "Viewer".
+  //   3. eventsSheetTab is the exact tab name (case-sensitive).
+  // Leave eventsSheetId as "" to fall back to the CSV link, then the static list.
+  eventsSheetId: "",
+  eventsSheetTab: "Events",
+
+  // OPTIONAL fallback: a Publish-to-web CSV link. Only used if eventsSheetId
+  // is empty. (This method can be blocked by the browser's CORS rules.)
   eventsCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRjl9U-9jocCT_3HlPaZC7kqR1hwRBoE9Ko4Ps1SziEJHpahqFPKMGs-LvyQuBFmLUiS_l7fjdW_sBR/pub?gid=384620720&single=true&output=csv",
 
   // ── UPCOMING EVENTS (static fallback) ─────────────────────
