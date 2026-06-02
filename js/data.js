@@ -6,7 +6,21 @@
 
 const DIGICART_DATA = {
 
-  // ── UPCOMING EVENTS ──────────────────────────────────────
+  // ── LIVE EVENTS SOURCE (Google Sheet) ─────────────────────
+  // Paste the PUBLISHED CSV link of your "Events" sheet tab here to load
+  // Upcoming Events live from Google Sheets. Leave it as "" to use the
+  // static list below instead.
+  //
+  // Expected sheet layout (tab named "Events"):
+  //   A1 = Month (e.g. November)   B1 = Year (e.g. 2026)
+  //   A2:A = Day of month          B2:B = Event name for that day
+  //
+  // How to get the link: in your Google Sheet →
+  //   File → Share → Publish to web → pick the "Events" sheet
+  //   + "Comma-separated values (.csv)" → Publish → copy the link.
+  eventsCsvUrl: "",
+
+  // ── UPCOMING EVENTS (static fallback) ─────────────────────
   // Format: { month: "Month YYYY", day: "DD", name: "Event Name" }
   // Use <sup>ordinal</sup> for ordinals like 52<sup>nd</sup>
   events: [
