@@ -374,7 +374,8 @@ function openChedoPortal() {
 
 /**
  * Called by "Open App" buttons on chedo.html.
- * Shows email verification first, then the restricted-access confirmation on success.
+ * Shows a CHE DO restricted-access info modal first,
+ * then email verification on Continue, then opens the app on success.
  */
 function openChedoApp(el) {
   const link = el.getAttribute('data-link');
@@ -386,11 +387,74 @@ function openChedoApp(el) {
   const card = el.closest('.app-card');
   const appName = card?.querySelector('.app-name')?.textContent || 'this application';
 
-  showEmailVerifyModal(() => {
-    showRestrictedModal(appName, link);
-  }, appName);
-
+  showChedoRestrictedModal(appName, link);
   return false;
+}
+
+/**
+ * Shows a CHE DO-themed "Authorized Email Only" info modal.
+ * On Continue → email verification gate → open app.
+ */
+function showChedoRestrictedModal(appName, link) {
+  const existing = document.getElementById('chedo-restricted-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'chedo-restricted-modal';
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeChedoRestrictedModal()"></div>
+    <div class="modal-box chedo-modal-box" role="dialog" aria-modal="true" aria-labelledby="chedo-modal-title">
+      <div class="modal-icon">🔐</div>
+      <h2 class="modal-title chedo-modal-title" id="chedo-modal-title">CHE DO Restricted App</h2>
+      <p class="modal-app-name chedo-modal-app-name">${appName}</p>
+      <div class="modal-body">
+        <p>This application is restricted to <strong>authorized CHE DO email accounts only</strong>.</p>
+        <div class="modal-steps">
+          <div class="modal-step">
+            <span class="step-num chedo-step-num">1</span>
+            <span>You will be asked to <strong>verify your authorized CHE DO email</strong> address</span>
+          </div>
+          <div class="modal-step">
+            <span class="step-num chedo-step-num">2</span>
+            <span>Make sure you are signed in with your <strong>authorized UP Google account</strong></span>
+          </div>
+          <div class="modal-step">
+            <span class="step-num chedo-step-num">3</span>
+            <span>If access is denied, contact the <strong>CHE Office of the Dean</strong> to request authorization</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeChedoRestrictedModal()">Cancel</button>
+        <button class="modal-btn continue chedo-continue-btn" onclick="proceedToChedoVerify('${appName.replace(/'/g, "\\'")}', '${link}')">
+          Continue <span>→</span>
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  requestAnimationFrame(() => modal.classList.add('modal-visible'));
+  document.addEventListener('keydown', handleChedoModalKeydown);
+}
+
+function handleChedoModalKeydown(e) {
+  if (e.key === 'Escape') closeChedoRestrictedModal();
+}
+
+function closeChedoRestrictedModal() {
+  const modal = document.getElementById('chedo-restricted-modal');
+  if (!modal) return;
+  modal.classList.remove('modal-visible');
+  setTimeout(() => modal.remove(), 250);
+  document.removeEventListener('keydown', handleChedoModalKeydown);
+}
+
+function proceedToChedoVerify(appName, link) {
+  closeChedoRestrictedModal();
+  showEmailVerifyModal(() => {
+    window.open(link, '_blank', 'noopener,noreferrer');
+  }, appName);
 }
 
 // ── TOAST NOTIFICATION ────────────────────────
