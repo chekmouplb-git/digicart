@@ -214,8 +214,27 @@ function proceedToApp(link) {
 // ── EMAIL VERIFICATION – CHE DO PORTAL ───────
 // ▼▼▼ ADD OR REMOVE AUTHORIZED EMAILS HERE ▼▼▼
 const CHEDO_ALLOWED_EMAILS = [
-  'juan.delacruz@up.edu.ph',
-  'maria.santos@uplb.edu.ph',
+  'jsamparo@up.edu.ph',
+  'mrnguyenorca@up.edu.ph',
+  'rzalbor@up.edu.ph',
+  'iudanao@up.edu.ph',
+  'ameusebio@up.edu.ph',
+  'bgeusebio1@up.edu.ph',
+  'eadelrosario1@up.edu.ph',
+  'mcdacanay@up.edu.ph',
+  'edbatas@up.edu.ph',
+  'ssmorales@up.edu.ph',
+  'mddimaano4@up.edu.ph',
+  'jpencina@up.edu.ph',
+  'crbalasabas@up.edu.ph',
+  'marepomanta@up.edu.ph',
+  'mrmanalo4@up.edu.ph',
+  'hbexconde@up.edu.ph',
+  'kmgironella@up.edu.ph ',
+  'ldsaucelo@up.edu.ph',
+  'ddegala@up.edu.ph',
+  'lbsolis@up.edu.ph',
+  'mrvalenzuela2@up.edu.ph',
   // add more emails below this line...
 ];
 // ▲▲▲ END OF EMAIL LIST ▲▲▲
