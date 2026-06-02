@@ -38,11 +38,11 @@ async function fetchWeather() {
 fetchWeather();
 
 // ── RENDER EVENTS (index.html only) ──────────
-function renderEvents() {
+function renderEventGroups(groups) {
   const container = document.getElementById('eventsList');
-  if (!container || !DIGICART_DATA?.events) return;
+  if (!container) return;
   let html = '';
-  DIGICART_DATA.events.forEach(group => {
+  (groups || []).forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
     group.items.forEach(ev => {
       html += `<div class="event-item">
@@ -51,7 +51,138 @@ function renderEvents() {
       </div>`;
     });
   });
-  container.innerHTML = html;
+  container.innerHTML = html || '<p class="events-empty">No upcoming events.</p>';
+}
+
+// Minimal RFC-4180 CSV parser → array of rows (each row = array of cells).
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else { field += c; }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ',') {
+      row.push(field); field = '';
+    } else if (c === '\n') {
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if (c !== '\r') {
+      field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+// Build {month, items:[{day,name}]} from CSV rows.
+// Row 1 = [Month, Year]; rows 2+ = [Day, Event name].
+function eventsFromSheetRows(rows) {
+  const clean = (rows || []).filter(r => r.some(c => (c || '').trim() !== ''));
+  if (!clean.length) return null;
+  const month = `${(clean[0][0] || '').trim()} ${(clean[0][1] || '').trim()}`.trim();
+  const items = [];
+  for (let i = 1; i < clean.length; i++) {
+    const day = (clean[i][0] || '').trim();
+    const name = (clean[i][1] || '').trim();
+    if (day || name) items.push({ day, name });
+  }
+  return items.length ? [{ month, items }] : null;
+}
+
+// ── LIVE LOADER 1: gviz (CORS-proof, loads the tab by name) ──
+// Loaded via a <script> tag so it is NOT subject to CORS, unlike fetch().
+// Uses headers=1 so row 1 (Month / Year) becomes the column LABELS and the
+// remaining rows are pure day/event data — this also avoids gviz's
+// mixed-column type bug that can blank out text cells.
+function loadEventsViaGviz(sheetId, tab) {
+  return new Promise((resolve, reject) => {
+    const cb = 'gvizEventsCb_' + Math.random().toString(36).slice(2);
+    let script;
+    const cleanup = () => { try { delete window[cb]; } catch (e) { window[cb] = undefined; } if (script) script.remove(); };
+    const timer = setTimeout(() => { cleanup(); reject(new Error('gviz request timed out')); }, 12000);
+
+    window[cb] = (resp) => {
+      clearTimeout(timer);
+      try {
+        if (!resp || resp.status === 'error') {
+          throw new Error('gviz error: ' + JSON.stringify(resp && resp.errors));
+        }
+        const cols = (resp.table.cols || []).map(c => (c.label || '').trim());
+        const month = `${cols[0] || ''} ${cols[1] || ''}`.trim();
+        const val = (cell) => cell ? (cell.f != null ? cell.f : (cell.v != null ? cell.v : '')) : '';
+        const items = (resp.table.rows || [])
+          .map(r => {
+            const c = r.c || [];
+            return { day: String(val(c[0])).trim(), name: String(val(c[1])).trim() };
+          })
+          .filter(it => it.day || it.name);
+        resolve(items.length ? [{ month, items }] : null);
+      } catch (e) {
+        reject(e);
+      } finally {
+        cleanup();
+      }
+    };
+
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq` +
+      `?tqx=out:json;responseHandler:${cb}&sheet=${encodeURIComponent(tab)}&headers=1`;
+    script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => {
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error('Could not load the sheet. Check the Sheet ID and that sharing is set to "Anyone with the link → Viewer".'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+// ── LIVE LOADER 2: published CSV via fetch (may be blocked by CORS) ──
+async function loadEventsViaCsv(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return eventsFromSheetRows(parseCSV(await res.text()));
+}
+
+async function renderEvents() {
+  const container = document.getElementById('eventsList');
+  if (!container) return;
+
+  const sheetId  = DIGICART_DATA?.eventsSheetId;
+  const sheetTab = DIGICART_DATA?.eventsSheetTab || 'Events';
+  const csvUrl   = DIGICART_DATA?.eventsCsvUrl;
+  const fallback = DIGICART_DATA?.events || [];
+
+  // 1) Preferred: gviz (no CORS problems). Used when a Sheet ID is set.
+  if (sheetId) {
+    try {
+      const groups = await loadEventsViaGviz(sheetId, sheetTab);
+      if (groups) { console.info('📅 Events: loaded live via gviz.'); renderEventGroups(groups); return; }
+      console.warn('📅 Events: gviz returned no rows; trying next source.');
+    } catch (e) {
+      console.warn('📅 Events: gviz failed, trying next source ->', e.message || e);
+    }
+  }
+
+  // 2) Fallback: published CSV (works only if not blocked by CORS).
+  if (csvUrl) {
+    try {
+      const groups = await loadEventsViaCsv(csvUrl);
+      if (groups) { console.info('📅 Events: loaded live via published CSV.'); renderEventGroups(groups); return; }
+      console.warn('📅 Events: CSV returned no rows; showing static list.');
+    } catch (e) {
+      console.warn('📅 Events: CSV fetch failed (often CORS), showing static list ->', e.message || e);
+    }
+  }
+
+  // 3) Last resort: static list from data.js.
+  if (!sheetId && !csvUrl) console.info('📅 Events: no live source set; showing static list.');
+  renderEventGroups(fallback);
 }
 renderEvents();
 
