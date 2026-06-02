@@ -459,7 +459,7 @@ function isValidChedoEmail(email, allowedList) {
  * @param {string[]} [allowedEmails] Optional per-card authorized list. Falls back
  *                                   to the global list when omitted/empty.
  */
-function showEmailVerifyModal(onVerified, context, allowedEmails) {
+function showEmailVerifyModal(onVerified, context, allowedEmails, onCancel) {
   // Remove any existing instance
   const existing = document.getElementById('email-verify-modal');
   if (existing) existing.remove();
@@ -503,8 +503,9 @@ function showEmailVerifyModal(onVerified, context, allowedEmails) {
     </div>
   `;
 
-  // Store callback + this card's authorized list
+  // Store callbacks + this card's authorized list
   modal._onVerified = onVerified;
+  modal._onCancel = onCancel;
   modal._allowedEmails = allowedEmails;
   document.body.appendChild(modal);
 
@@ -528,9 +529,12 @@ function handleEmailVerifyKeydown(e) {
 function closeEmailVerifyModal() {
   const modal = document.getElementById('email-verify-modal');
   if (!modal) return;
+  // Only treat as a cancel if the user did NOT successfully verify.
+  const onCancel = modal._verified ? null : modal._onCancel;
   modal.classList.remove('modal-visible');
   setTimeout(() => modal.remove(), 250);
   document.removeEventListener('keydown', handleEmailVerifyKeydown);
+  if (typeof onCancel === 'function') onCancel();
 }
 
 function clearEmailError() {
@@ -567,19 +571,52 @@ function submitEmailVerify() {
 
   // Passed — close and call callback
   const onVerified = modal._onVerified;
+  modal._verified = true;
   closeEmailVerifyModal();
   if (typeof onVerified === 'function') onVerified(email);
 }
 
 /**
- * Called when the user clicks "CHE Office of the Dean" in the nav.
- * Shows email verification, then navigates to chedo.html on success.
+ * ACCESS GUARD for chedo.html.
+ * Runs on every load of the CHE DO portal page (no matter how it was reached:
+ * a nav link, a typed URL, or a bookmark). It hides the page content and
+ * requires a valid CHE DO email before revealing it. Cancelling sends the
+ * visitor back to the main portal. There is intentionally no "remember me",
+ * so verification is asked for each time the portal page is opened.
  */
-function openChedoPortal() {
-  showEmailVerifyModal(() => {
-    window.location.href = 'chedo.html';
-  });
+function guardChedoPage() {
+  // Only act on the CHE DO portal page (identified by its banner element).
+  const onChedo = document.querySelector('.do-banner')
+    || /chedo\.html$/i.test(location.pathname);
+  if (!onChedo) return;
+
+  // Already unlocked this page instance, or a prompt is already showing.
+  if (document.body.dataset.chedoUnlocked === 'yes') return;
+  if (document.getElementById('email-verify-modal')) return;
+
+  const content = document.querySelector('main.page-section');
+  if (content) content.style.visibility = 'hidden';
+
+  showEmailVerifyModal(
+    // onVerified → reveal the page
+    () => {
+      document.body.dataset.chedoUnlocked = 'yes';
+      if (content) content.style.visibility = '';
+    },
+    'the CHE DO Portal',
+    null, // use the global authorized list
+    // onCancel → go back to the main portal
+    () => { window.location.replace('index.html'); }
+  );
 }
+
+// Run the guard on first load and on back/forward-cache restores.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', guardChedoPage);
+} else {
+  guardChedoPage();
+}
+window.addEventListener('pageshow', guardChedoPage);
 
 /**
  * Called by "Open App" buttons on chedo.html.
