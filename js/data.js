@@ -19,7 +19,7 @@ const DIGICART_DATA = {
   //      "Anyone with the link" → role "Viewer".
   //   3. eventsSheetTab is the exact tab name (case-sensitive).
   // Leave eventsSheetId as "" to fall back to the CSV link, then the static list.
-  eventsSheetId: "",
+  eventsSheetId: "1iXaKYzCmtQ1pGzN_gonoigKV9CczLlXGGbCd2tQHkNU",
   eventsSheetTab: "Events",
 
   // OPTIONAL fallback: a Publish-to-web CSV link. Only used if eventsSheetId
