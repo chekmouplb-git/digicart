@@ -258,23 +258,83 @@ function clearSearch() {
 
 // ── OPEN APP LINKS ────────────────────────────
 function openApp(el) {
-  const link = el.getAttribute('data-link');
-  if (!link || link.startsWith('PASTE_')) {
-    showToast('🔗 Link not yet configured. Replace the placeholder URL in the HTML file.');
+  const link = (el.getAttribute('data-link') || '').trim();
+  const card = el.closest('.app-card');
+  const appName = card?.querySelector('.app-name')?.textContent || 'This application';
+
+  // No real URL yet (empty, "#", or a PASTE_..._HERE placeholder) → Coming Soon.
+  const notConfigured = !link || link === '#' || link.startsWith('PASTE_');
+  if (notConfigured) {
+    showComingSoonModal(appName);
     return false;
   }
 
   // Check if the card is restricted
-  const card = el.closest('.app-card');
   const isRestricted = card && card.classList.contains('restricted');
 
   if (isRestricted) {
-    const appName = card.querySelector('.app-name')?.textContent || 'this application';
     showRestrictedModal(appName, link);
   } else {
     window.open(link, '_blank', 'noopener,noreferrer');
   }
   return false;
+}
+
+// ── COMING SOON MODAL ─────────────────────────
+// Shown when an app card has no real link yet. Self-contained: it injects
+// its own styles (using the site's CSS variables) so no CSS file changes
+// are needed. Matches the look of the other modals.
+function showComingSoonModal(appName) {
+  const existing = document.getElementById('coming-soon-modal');
+  if (existing) existing.remove();
+
+  if (!document.getElementById('coming-soon-modal-styles')) {
+    const style = document.createElement('style');
+    style.id = 'coming-soon-modal-styles';
+    style.textContent = `
+      #coming-soon-modal { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; }
+      #coming-soon-modal.modal-visible { opacity: 1; }
+      #coming-soon-modal .cs-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); }
+      #coming-soon-modal .cs-box { position: relative; background: var(--white, #fff); border-radius: 18px; padding: 36px 32px 28px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: translateY(16px); transition: transform 0.25s ease; text-align: center; }
+      #coming-soon-modal.modal-visible .cs-box { transform: translateY(0); }
+      #coming-soon-modal .cs-icon { font-size: 46px; margin-bottom: 12px; line-height: 1; }
+      #coming-soon-modal .cs-title { font-family: var(--font-display, 'Playfair Display', serif); font-size: 1.4rem; color: var(--maroon, #7B1C2A); margin-bottom: 8px; }
+      #coming-soon-modal .cs-app-name { font-size: 13px; font-weight: 700; color: var(--gold, #C8960C); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
+      #coming-soon-modal .cs-msg { font-size: 14px; color: var(--gray-600, #555); line-height: 1.55; margin-bottom: 24px; }
+      #coming-soon-modal .cs-btn { padding: 11px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; font-family: var(--font-body, 'Source Sans 3', sans-serif); cursor: pointer; border: none; background: var(--maroon, #7B1C2A); color: #fff; transition: background 0.2s, transform 0.15s; }
+      #coming-soon-modal .cs-btn:hover { background: var(--maroon-dark, #5d0f1c); transform: translateY(-1px); }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const modal = document.createElement('div');
+  modal.id = 'coming-soon-modal';
+  modal.innerHTML = `
+    <div class="cs-backdrop" onclick="closeComingSoonModal()"></div>
+    <div class="cs-box" role="dialog" aria-modal="true" aria-labelledby="cs-title">
+      <div class="cs-icon">🚧</div>
+      <h2 class="cs-title" id="cs-title">Coming Soon</h2>
+      <p class="cs-app-name">${appName}</p>
+      <p class="cs-msg">This application isn't available just yet. Please check back soon — it's on the way!</p>
+      <button class="cs-btn" onclick="closeComingSoonModal()">Got it</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  requestAnimationFrame(() => modal.classList.add('modal-visible'));
+  document.addEventListener('keydown', handleComingSoonKeydown);
+}
+
+function handleComingSoonKeydown(e) {
+  if (e.key === 'Escape') closeComingSoonModal();
+}
+
+function closeComingSoonModal() {
+  const modal = document.getElementById('coming-soon-modal');
+  if (!modal) return;
+  modal.classList.remove('modal-visible');
+  setTimeout(() => modal.remove(), 250);
+  document.removeEventListener('keydown', handleComingSoonKeydown);
 }
 
 // ── RESTRICTED ACCESS MODAL ───────────────────
@@ -527,14 +587,15 @@ function openChedoPortal() {
  * then email verification on Continue, then opens the app on success.
  */
 function openChedoApp(el) {
-  const link = el.getAttribute('data-link');
-  if (!link || link.startsWith('PASTE_')) {
-    showToast('🔗 Link not yet configured. Replace the placeholder URL in the HTML file.');
+  const link = (el.getAttribute('data-link') || '').trim();
+  const card = el.closest('.app-card');
+  const appName = card?.querySelector('.app-name')?.textContent || 'This application';
+
+  // No real URL yet → Coming Soon (same as the public apps page).
+  if (!link || link === '#' || link.startsWith('PASTE_')) {
+    showComingSoonModal(appName);
     return false;
   }
-
-  const card = el.closest('.app-card');
-  const appName = card?.querySelector('.app-name')?.textContent || 'this application';
 
   // Read THIS card's authorized email list from its data-emails attribute.
   // Comma-separated; whitespace and empty entries are ignored.
