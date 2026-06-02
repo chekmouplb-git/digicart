@@ -212,7 +212,11 @@ function proceedToApp(link) {
 }
 
 // ── EMAIL VERIFICATION – CHE DO PORTAL ───────
-// ▼▼▼ ADD OR REMOVE AUTHORIZED EMAILS HERE ▼▼▼
+// This is the GLOBAL fallback list. It is only used by a card that
+// does NOT have its own `data-emails` attribute (or has an empty one).
+// To set per-app access, edit the `data-emails` attribute on each card
+// in chedo.html — see that file for examples.
+// ▼▼▼ ADD OR REMOVE GLOBAL FALLBACK EMAILS HERE ▼▼▼
 const CHEDO_ALLOWED_EMAILS = [
   'jsamparo@up.edu.ph',
   'mrnguyenorca@up.edu.ph',
@@ -230,7 +234,7 @@ const CHEDO_ALLOWED_EMAILS = [
   'marepomanta@up.edu.ph',
   'mrmanalo4@up.edu.ph',
   'hbexconde@up.edu.ph',
-  'kmgironella@up.edu.ph ',
+  'kmgironella@up.edu.ph',
   'ldsaucelo@up.edu.ph',
   'ddegala@up.edu.ph',
   'lbsolis@up.edu.ph',
@@ -241,17 +245,30 @@ const CHEDO_ALLOWED_EMAILS = [
 ];
 // ▲▲▲ END OF EMAIL LIST ▲▲▲
 
-function isValidChedoEmail(email) {
+/**
+ * Checks an email against an authorized list.
+ * @param {string}   email        The email the user typed.
+ * @param {string[]} [allowedList] Optional per-card list. If omitted or
+ *                                 empty, the global CHEDO_ALLOWED_EMAILS
+ *                                 list is used as a fallback.
+ */
+function isValidChedoEmail(email, allowedList) {
   const normalized = email.trim().toLowerCase();
-  return CHEDO_ALLOWED_EMAILS.includes(normalized);
+  const list = (Array.isArray(allowedList) && allowedList.length)
+    ? allowedList
+    : CHEDO_ALLOWED_EMAILS;
+  // Normalize each entry too, so stray spaces / capitalization don't matter.
+  return list.some(e => e.trim().toLowerCase() === normalized);
 }
 
 /**
  * Opens the email verification gate.
- * @param {Function} onVerified  Called when the user passes — receives the verified email.
- * @param {string}   [context]   Optional label shown in the modal (e.g. app name).
+ * @param {Function} onVerified     Called when the user passes — receives the verified email.
+ * @param {string}   [context]      Optional label shown in the modal (e.g. app name).
+ * @param {string[]} [allowedEmails] Optional per-card authorized list. Falls back
+ *                                   to the global list when omitted/empty.
  */
-function showEmailVerifyModal(onVerified, context) {
+function showEmailVerifyModal(onVerified, context, allowedEmails) {
   // Remove any existing instance
   const existing = document.getElementById('email-verify-modal');
   if (existing) existing.remove();
@@ -295,8 +312,9 @@ function showEmailVerifyModal(onVerified, context) {
     </div>
   `;
 
-  // Store callback
+  // Store callback + this card's authorized list
   modal._onVerified = onVerified;
+  modal._allowedEmails = allowedEmails;
   document.body.appendChild(modal);
 
   // Keyboard handlers
@@ -348,7 +366,7 @@ function submitEmailVerify() {
     return;
   }
 
-  if (!isValidChedoEmail(email)) {
+  if (!isValidChedoEmail(email, modal._allowedEmails)) {
     input.classList.add('ev-error');
     errorText.textContent = 'That email is not on the authorized list. Contact the CHE office if you need access.';
     errorEl.classList.add('show');
@@ -387,7 +405,16 @@ function openChedoApp(el) {
   const card = el.closest('.app-card');
   const appName = card?.querySelector('.app-name')?.textContent || 'this application';
 
-  showChedoRestrictedModal(appName, link);
+  // Read THIS card's authorized email list from its data-emails attribute.
+  // Comma-separated; whitespace and empty entries are ignored.
+  // If the attribute is missing/empty, the global fallback list is used.
+  const emailsAttr = card?.getAttribute('data-emails') || '';
+  const allowedEmails = emailsAttr
+    .split(',')
+    .map(e => e.trim())
+    .filter(Boolean);
+
+  showChedoRestrictedModal(appName, link, allowedEmails);
   return false;
 }
 
@@ -395,7 +422,7 @@ function openChedoApp(el) {
  * Shows a CHE DO-themed "Authorized Email Only" info modal.
  * On Continue → email verification gate → open app.
  */
-function showChedoRestrictedModal(appName, link) {
+function showChedoRestrictedModal(appName, link, allowedEmails) {
   const existing = document.getElementById('chedo-restricted-modal');
   if (existing) existing.remove();
 
@@ -432,6 +459,8 @@ function showChedoRestrictedModal(appName, link) {
       </div>
     </div>
   `;
+  // Keep the per-card list on the element so Continue can hand it to the verify gate.
+  modal._allowedEmails = allowedEmails;
   document.body.appendChild(modal);
 
   requestAnimationFrame(() => modal.classList.add('modal-visible'));
@@ -451,10 +480,13 @@ function closeChedoRestrictedModal() {
 }
 
 function proceedToChedoVerify(appName, link) {
+  // Grab this card's list before the modal is removed from the DOM.
+  const modal = document.getElementById('chedo-restricted-modal');
+  const allowedEmails = modal ? modal._allowedEmails : null;
   closeChedoRestrictedModal();
   showEmailVerifyModal(() => {
     window.open(link, '_blank', 'noopener,noreferrer');
-  }, appName);
+  }, appName, allowedEmails);
 }
 
 // ── TOAST NOTIFICATION ────────────────────────
