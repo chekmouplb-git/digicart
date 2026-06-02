@@ -465,8 +465,8 @@ function showEmailVerifyModal(onVerified, context, allowedEmails) {
   if (existing) existing.remove();
 
   const contextLine = context
-    ? `<p class="ev-subtitle">Verify your identity to access <strong>${context}</strong>. Only authorized CHE DO members may proceed.</p>`
-    : `<p class="ev-subtitle">This area is restricted to <strong>CHE Office of the Dean members</strong> only. Please verify your email to continue.</p>`;
+    ? `<p class="ev-subtitle">Verify your identity to access <strong>${context}</strong>. Only authorized CHE DO Employees may proceed.</p>`
+    : `<p class="ev-subtitle">This area is restricted to <strong>CHE Office of the Dean Employees</strong> only. Please verify your email to continue.</p>`;
 
   const modal = document.createElement('div');
   modal.id = 'email-verify-modal';
@@ -491,7 +491,7 @@ function showEmailVerifyModal(onVerified, context, allowedEmails) {
         </div>
       </div>
       <div class="ev-hint">
-        Access is limited to <strong>authorized CHE DO members</strong> only.
+        Access is limited to <strong>authorized CHE DO Employees</strong> only.
         If you believe you should have access, contact the CHE office.
       </div>
       <div class="ev-actions">
