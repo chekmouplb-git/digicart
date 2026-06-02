@@ -917,6 +917,50 @@ body {
   transform: none;
 }
 
+/* ── CHE DO RESTRICTED MODAL ── */
+#chedo-restricted-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#chedo-restricted-modal.modal-visible { opacity: 1; }
+
+.chedo-modal-box {
+  border-top: 4px solid #2D6A4F;
+}
+
+.chedo-modal-title {
+  color: #1B4332 !important;
+}
+
+.chedo-modal-app-name {
+  color: #C8960C !important;
+}
+
+.chedo-step-num {
+  background: #2D6A4F !important;
+}
+
+.chedo-continue-btn {
+  background: #1B4332 !important;
+}
+.chedo-continue-btn:hover {
+  background: #0D2B1F !important;
+}
+
+#chedo-restricted-modal .modal-box {
+  transform: translateY(16px);
+  transition: transform 0.25s ease;
+}
+#chedo-restricted-modal.modal-visible .modal-box {
+  transform: translateY(0);
+}
+
 /* ── FOOTER ── */
 .site-footer {
   text-align: center;
