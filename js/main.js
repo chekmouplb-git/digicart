@@ -211,6 +211,167 @@ function proceedToApp(link) {
   window.open(link, '_blank', 'noopener,noreferrer');
 }
 
+// ── EMAIL VERIFICATION – CHE DO PORTAL ───────
+// ▼▼▼ ADD OR REMOVE AUTHORIZED EMAILS HERE ▼▼▼
+const CHEDO_ALLOWED_EMAILS = [
+  'juan.delacruz@up.edu.ph',
+  'maria.santos@uplb.edu.ph',
+  // add more emails below this line...
+];
+// ▲▲▲ END OF EMAIL LIST ▲▲▲
+
+function isValidChedoEmail(email) {
+  const normalized = email.trim().toLowerCase();
+  return CHEDO_ALLOWED_EMAILS.includes(normalized);
+}
+
+/**
+ * Opens the email verification gate.
+ * @param {Function} onVerified  Called when the user passes — receives the verified email.
+ * @param {string}   [context]   Optional label shown in the modal (e.g. app name).
+ */
+function showEmailVerifyModal(onVerified, context) {
+  // Remove any existing instance
+  const existing = document.getElementById('email-verify-modal');
+  if (existing) existing.remove();
+
+  const contextLine = context
+    ? `<p class="ev-subtitle">Verify your identity to access <strong>${context}</strong>. Only authorized CHE DO members may proceed.</p>`
+    : `<p class="ev-subtitle">This area is restricted to <strong>CHE Office of the Dean members</strong> only. Please verify your email to continue.</p>`;
+
+  const modal = document.createElement('div');
+  modal.id = 'email-verify-modal';
+  modal.innerHTML = `
+    <div class="ev-backdrop" onclick="closeEmailVerifyModal()"></div>
+    <div class="ev-box" role="dialog" aria-modal="true" aria-labelledby="ev-title">
+      <div class="ev-icon">🔐</div>
+      <h2 class="ev-title" id="ev-title">Email Verification Required</h2>
+      ${contextLine}
+      <div class="ev-input-wrap">
+        <label class="ev-label" for="ev-email-input">Your CHE DO Email Address</label>
+        <input
+          type="email"
+          id="ev-email-input"
+          class="ev-input"
+          placeholder="yourname@up.edu.ph"
+          autocomplete="email"
+          spellcheck="false"
+        />
+        <div class="ev-error-msg" id="ev-error">
+          <span>⚠️</span><span id="ev-error-text">That email is not on the authorized list.</span>
+        </div>
+      </div>
+      <div class="ev-hint">
+        Access is limited to <strong>authorized CHE DO members</strong> only.
+        If you believe you should have access, contact the CHE office.
+      </div>
+      <div class="ev-actions">
+        <button class="ev-btn cancel" onclick="closeEmailVerifyModal()">Cancel</button>
+        <button class="ev-btn verify" id="ev-submit-btn" onclick="submitEmailVerify()">
+          Verify &amp; Continue <span>→</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Store callback
+  modal._onVerified = onVerified;
+  document.body.appendChild(modal);
+
+  // Keyboard handlers
+  const input = modal.querySelector('#ev-email-input');
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitEmailVerify();
+    clearEmailError();
+  });
+
+  requestAnimationFrame(() => modal.classList.add('modal-visible'));
+  setTimeout(() => input.focus(), 280);
+
+  document.addEventListener('keydown', handleEmailVerifyKeydown);
+}
+
+function handleEmailVerifyKeydown(e) {
+  if (e.key === 'Escape') closeEmailVerifyModal();
+}
+
+function closeEmailVerifyModal() {
+  const modal = document.getElementById('email-verify-modal');
+  if (!modal) return;
+  modal.classList.remove('modal-visible');
+  setTimeout(() => modal.remove(), 250);
+  document.removeEventListener('keydown', handleEmailVerifyKeydown);
+}
+
+function clearEmailError() {
+  const input = document.getElementById('ev-email-input');
+  const error = document.getElementById('ev-error');
+  if (input) input.classList.remove('ev-error');
+  if (error) error.classList.remove('show');
+}
+
+function submitEmailVerify() {
+  const modal = document.getElementById('email-verify-modal');
+  if (!modal) return;
+
+  const input = document.getElementById('ev-email-input');
+  const errorEl = document.getElementById('ev-error');
+  const errorText = document.getElementById('ev-error-text');
+  const email = (input?.value || '').trim();
+
+  if (!email) {
+    input.classList.add('ev-error');
+    errorText.textContent = 'Please enter your email address.';
+    errorEl.classList.add('show');
+    input.focus();
+    return;
+  }
+
+  if (!isValidChedoEmail(email)) {
+    input.classList.add('ev-error');
+    errorText.textContent = 'That email is not on the authorized list. Contact the CHE office if you need access.';
+    errorEl.classList.add('show');
+    input.focus();
+    return;
+  }
+
+  // Passed — close and call callback
+  const onVerified = modal._onVerified;
+  closeEmailVerifyModal();
+  if (typeof onVerified === 'function') onVerified(email);
+}
+
+/**
+ * Called when the user clicks "CHE Office of the Dean" in the nav.
+ * Shows email verification, then navigates to chedo.html on success.
+ */
+function openChedoPortal() {
+  showEmailVerifyModal(() => {
+    window.location.href = 'chedo.html';
+  });
+}
+
+/**
+ * Called by "Open App" buttons on chedo.html.
+ * Shows email verification first, then the restricted-access confirmation on success.
+ */
+function openChedoApp(el) {
+  const link = el.getAttribute('data-link');
+  if (!link || link.startsWith('PASTE_')) {
+    showToast('🔗 Link not yet configured. Replace the placeholder URL in the HTML file.');
+    return false;
+  }
+
+  const card = el.closest('.app-card');
+  const appName = card?.querySelector('.app-name')?.textContent || 'this application';
+
+  showEmailVerifyModal(() => {
+    showRestrictedModal(appName, link);
+  }, appName);
+
+  return false;
+}
+
 // ── TOAST NOTIFICATION ────────────────────────
 function showToast(msg) {
   let toast = document.getElementById('digi-toast');
