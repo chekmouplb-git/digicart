@@ -573,62 +573,103 @@ body {
 .event-name { font-size: 13.5px; color: rgba(255,255,255,0.9); line-height: 1.4; }
 .event-name sup { font-size: 10px; }
 
-/* Updates card */
-.updates-card {
-  background: var(--green);
-  color: var(--white);
-}
-.updates-title {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  color: var(--white);
-  margin-bottom: 14px;
-  font-weight: 700;
-}
-
-.updates-section { margin-bottom: 16px; }
-.updates-category {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gold-light);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-}
-
-.update-item {
+/* DigiHUB reference card */
+.digihub-card {
+  position: relative;
   display: flex;
-  gap: 8px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  font-size: 12.5px;
-  line-height: 1.45;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-top: 4px solid var(--gold);
+  overflow: hidden;
 }
-.update-item:last-child { border-bottom: none; }
-.update-tag {
-  font-size: 10px;
-  font-weight: 700;
-  background: rgba(255,255,255,0.15);
-  color: var(--gold-light);
-  padding: 2px 6px;
-  border-radius: 4px;
-  align-self: flex-start;
-  flex-shrink: 0;
-  margin-top: 2px;
-  letter-spacing: 0.3px;
+.digihub-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(200,150,12,0.07), transparent 42%),
+    radial-gradient(circle at 8% 92%, rgba(123,28,42,0.06), transparent 45%);
+  pointer-events: none;
 }
-.update-text { color: rgba(255,255,255,0.88); }
+.digihub-card > * { position: relative; z-index: 1; }
 
-.news-item {
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.88);
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  line-height: 1.4;
+.digihub-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 1px solid var(--gray-200);
+  color: var(--maroon);
 }
-.news-item:last-child { border-bottom: none; }
+
+.digihub-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: var(--maroon);
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+.digihub-title::after {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 2px;
+  margin: 10px auto 0;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.digihub-text {
+  max-width: 340px;
+  margin: 14px 0 22px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--gray-600);
+}
+.digihub-inline-link {
+  color: var(--maroon);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1.5px solid var(--gold);
+  transition: color 0.2s, border-color 0.2s;
+}
+.digihub-inline-link:hover {
+  color: var(--maroon-dark);
+  border-color: var(--maroon-dark);
+}
+
+.digihub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: var(--maroon);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(123,28,42,0.18);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.digihub-btn:hover {
+  background: var(--maroon-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+.digihub-arrow { transition: transform 0.2s; }
+.digihub-btn:hover .digihub-arrow { transform: translateX(4px); }
 
 /* ── RESTRICTED ACCESS MODAL ── */
 #restricted-modal {
