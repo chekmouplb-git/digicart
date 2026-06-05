@@ -573,6 +573,37 @@ body {
 .event-name { font-size: 13.5px; color: rgba(255,255,255,0.9); line-height: 1.4; }
 .event-name sup { font-size: 10px; }
 
+/* Past events — dimmed / grayed out */
+.event-item.event-past { opacity: 0.45; }
+.event-item.event-past .event-day  { color: rgba(255,255,255,0.5); }
+.event-item.event-past .event-name { color: rgba(255,255,255,0.5); }
+
+/* Next upcoming event — highlighted */
+.event-item.event-next {
+  background: rgba(200,150,12,0.18);
+  border: 1px solid rgba(232,180,32,0.5);
+  border-left: 3px solid var(--gold-light);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 6px 0;
+}
+.event-item.event-next .event-day  { color: var(--gold-light); }
+.event-item.event-next .event-name { color: var(--white); font-weight: 600; }
+.event-badge {
+  margin-left: auto;
+  align-self: flex-start;
+  flex-shrink: 0;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  background: var(--gold-light);
+  color: var(--maroon-dark);
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 /* DigiHUB reference card */
 .digihub-card {
   position: relative;
