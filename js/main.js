@@ -38,16 +38,72 @@ async function fetchWeather() {
 fetchWeather();
 
 // ── RENDER EVENTS (index.html only) ──────────
+// Month name → 0-based index (supports full and abbreviated forms).
+const EVENT_MONTHS = {
+  jan:0, january:0, feb:1, february:1, mar:2, march:2, apr:3, april:3,
+  may:4, jun:5, june:5, jul:6, july:6, aug:7, august:7,
+  sep:8, sept:8, september:8, oct:9, october:9, nov:10, november:10, dec:11, december:11
+};
+
+// Parse a "June 2026" style label → { m: 5, y: 2026 }; fields are null if absent.
+function parseMonthYear(monthStr) {
+  const tokens = String(monthStr || '').toLowerCase().split(/[\s,]+/).filter(Boolean);
+  let m = null, y = null;
+  tokens.forEach(t => {
+    if (m === null && EVENT_MONTHS[t] !== undefined) m = EVENT_MONTHS[t];
+    if (y === null && /^\d{4}$/.test(t)) y = parseInt(t, 10);
+  });
+  return { m, y };
+}
+
+// Build a local-midnight Date for an event, or null if it can't be dated.
+function eventDate(monthStr, dayStr) {
+  const { m, y } = parseMonthYear(monthStr);
+  const d = parseInt(String(dayStr).replace(/[^0-9]/g, ''), 10);
+  if (m === null || y === null || !d) return null;
+  return new Date(y, m, d);
+}
+
 function renderEventGroups(groups) {
   const container = document.getElementById('eventsList');
   if (!container) return;
+
+  // Today at local midnight, so an event happening *today* still counts as upcoming.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTs = today.getTime();
+
+  // Pass 1: find the soonest upcoming date (today or later) across all groups.
+  let nextTs = null;
+  (groups || []).forEach(group => {
+    (group.items || []).forEach(ev => {
+      const d = eventDate(group.month, ev.day);
+      if (d) {
+        const ts = d.getTime();
+        if (ts >= todayTs && (nextTs === null || ts < nextTs)) nextTs = ts;
+      }
+    });
+  });
+
+  // Pass 2: render, tagging each event as past / next where applicable.
   let html = '';
   (groups || []).forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
-    group.items.forEach(ev => {
-      html += `<div class="event-item">
+    (group.items || []).forEach(ev => {
+      const d = eventDate(group.month, ev.day);
+      const ts = d ? d.getTime() : null;
+      let cls = 'event-item';
+      let badge = '';
+      if (ts !== null && ts < todayTs) {
+        cls += ' event-past';
+      } else if (ts !== null && nextTs !== null && ts === nextTs) {
+        cls += ' event-next';
+        badge = `<span class="event-badge">${ts === todayTs ? 'Today' : 'Up next'}</span>`;
+      }
+      html += `<div class="${cls}">
         <span class="event-day">${ev.day}</span>
         <span class="event-name">${ev.name}</span>
+        ${badge}
       </div>`;
     });
   });
