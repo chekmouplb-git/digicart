@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiCART – Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Favicons -->
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="weather">
+        <span class="weather-icon">🌧️</span>
+        <div class="weather-info">
+          <span class="weather-pct" id="weatherPct">—%</span>
+          <span class="weather-label">Chance of Raining</span>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <img src="assets/che-logo.png" alt="CHE Logo" class="topbar-logo" onerror="this.style.display='none'" />
+      <span class="topbar-college">College of Human Ecology</span>
+    </div>
+    <div class="topbar-right" id="datetimeDisplay"></div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1 class="logo-title">DigiCART</h1>
+      <p class="logo-subtitle">Digital College Administrative Repository for Transformation</p>
+      <p class="tagline" id="tagline">Makaekolohiyang Araw!</p>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="apps-nav" aria-label="Main Navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-item active">Home</a>
+      <a href="apps.html" class="nav-item">Applications</a>
+      <a href="chedo.html" class="nav-item special-nav">CHE Office of the Dean</a>
+    </div>
+  </nav>
+
+  <!-- HOME CONTENT -->
+  <main class="page-section">
+    <div class="home-grid">
+
+      <!-- Upcoming Events -->
+      <div class="sidebar-card events-card">
+        <h2 class="sidebar-title">Upcoming Events</h2>
+        <div class="events-list" id="eventsList"></div>
+      </div>
+
+      <!-- DigiHUB Reference -->
+      <div class="sidebar-card digihub-card">
+        <div class="digihub-emblem" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12h18" />
+            <path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18z" />
+          </svg>
+        </div>
+        <h2 class="sidebar-title digihub-title">CHE DigiHUB</h2>
+        <p class="digihub-text">
+          For more information and reference, please visit
+          <a href="https://sites.google.com/up.edu.ph/che-dghub" class="digihub-inline-link" target="_blank" rel="noopener">CHE DigiHUB</a>,
+          the common knowledge management repository platform for document templates, internal administrative and academic processes, and a reference for CHE policies and forms.
+        </p>
+        <a href="https://sites.google.com/up.edu.ph/che-dghub" class="digihub-btn" target="_blank" rel="noopener">
+          Visit CHE DigiHUB <span class="digihub-arrow">→</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="footerYear"></span> DigiCART &mdash; Digital College Administrative Repository for Transformation &mdash; College of Human Ecology, UPLB</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
