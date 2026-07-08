@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="css/style.css" />
   <!-- Favicons -->
   <link rel="icon" href="favicon.ico" sizes="any" />
@@ -144,9 +146,58 @@
           <p class="app-desc">Request and schedule college vehicle use for official trips and activities.</p>
           <div class="restriction-note">
             <span class="lock">🔒</span>
-            <span>Access limited to authorized personnel. You will be prompted to log in with your approved Google account.</span>
+            <span>Access limited to authorized personnel. You will be prompted to sign in with your approved Google account.</span>
           </div>
-          <a href="javascript:void(0)" class="app-btn restricted-btn" data-link="https://sites.google.com/up.edu.ph/che-dghub/che-admin-lounge" onclick="openApp(this)">
+          <!--- ▼ Replace with the real authorized emails for Vehicle Reservation ▼ --->
+          <a href="javascript:void(0)" class="app-btn restricted-btn" data-link="https://sites.google.com/up.edu.ph/che-dghub/che-admin-lounge"
+             data-emails="crbalasabas@up.edu.ph,
+                          edbatas@up.edu.ph,
+                          marepomanta@up.edu.ph,
+                          mcdacanay@up.edu.ph,
+                          ddegala@up.edu.ph,
+                          mddimaano4@up.edu.ph,
+                          ameusebio@up.edu.ph,
+                          bgeusebio1@up.edu.ph,
+                          hbexconde@up.edu.ph,
+                          kmgironella@up.edu.ph, 
+                          mrmanalo4@up.edu.ph,
+                          ssmorales@up.edu.ph, 
+                          ldsaucelo@up.edu.ph,
+                          lbsolis@up.edu.ph,
+                          mrvalenzuela2@up.edu.ph,
+                          eaaclas@up.edu.ph,
+                          vsangeles@up.edu.ph,
+                          canoyjinky16@gmail.com,
+                          mprevilleza1@up.edu.ph,
+                          semitarafe@gmail.com,
+                          rmcabral@up.edu.ph,
+                          drescobin@up.edu.ph,
+                          asmacapua@up.edu.ph,
+                          lbmateo@up.edu.ph,
+                          ahpalanginan1@up.edu.ph,
+                          amsuizo@up.edu.ph,
+                          lmalborida@up.edu.ph,
+                          sdencarnacion@up.edu.ph,
+                          ryanllamas1988@gmail.com,
+                          pcramos1@up.edu.ph,
+                          drlampayan@up.edu.ph,
+                          danterasgo@gmail.com,
+                          jesusftolentino@gmail.com,
+                          ilvibal@up.edu.ph,
+                          aferana@up.edu.ph,
+                          rlvillaran@up.edu.ph,
+                          markfrancismartinez384@gmail.com,
+                          adherrera1@up.edu.ph,
+                          amdelacruz21@up.edu.ph,
+                          jrcullat@up.edu.ph,
+                          mgsamonte@up.edu.ph,
+                          che_do.uplb@up.edu.ph,
+                          che.kmo.uplb@up.edu.ph,
+                          dsdsche.uplb@up.edu.ph,
+                          che_dcerp.uplb@up.edu.ph,
+                          dhfds.uplb@up.edu.ph,
+                          ihnf-che@up.edu.ph"
+             onclick="openGatedApp(this)">
             Open App <span class="arrow">→</span>
           </a>
         </div>
@@ -162,10 +213,13 @@
           <p class="app-desc">View and manage budget allocations, expenditures, and fund utilization reports.</p>
           <div class="restriction-note">
             <span class="lock">🔒</span>
-            <span>Access limited to authorized personnel. You will be prompted to log in with your approved Google account.</span>
+            <span>Access limited to authorized personnel. You will be prompted to sign in with your approved Google account.</span>
           </div>
           <!--- Change this link for new deployment --->
-          <a href="javascript:void(0)" class="app-btn restricted-btn" data-link="https://fund-utilization.vercel.app" onclick="openApp(this)">
+          <!--- ▼ Replace with the real authorized emails for Fund Utilization ▼ --->
+          <a href="javascript:void(0)" class="app-btn restricted-btn" data-link="https://fund-utilization.vercel.app"
+             data-emails="PLACEHOLDER_EMAIL_1@up.edu.ph, PLACEHOLDER_EMAIL_2@up.edu.ph"
+             onclick="openGatedApp(this)">
             Open App <span class="arrow">→</span>
           </a>
         </div>
