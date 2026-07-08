@@ -777,6 +777,36 @@ function openChedoApp(el) {
   return false;
 }
 
+// ── GOOGLE SIGN-IN GATE – apps.html RESTRICTED CARDS ──
+/**
+ * Called by "Open App" buttons on restricted cards in apps.html
+ * (e.g. Vehicle Reservation, Fund Utilization). Requires Google
+ * Sign-In with an email on the card's `data-emails` allowlist
+ * before opening the app link. Replaces the old informational
+ * "Continue" modal (showRestrictedModal) for these cards.
+ */
+function openGatedApp(el) {
+  const link = (el.getAttribute('data-link') || '').trim();
+  const card = el.closest('.app-card');
+  const appName = card?.querySelector('.app-name')?.textContent || 'This application';
+
+  if (!link || link === '#' || link.startsWith('PASTE_')) {
+    showComingSoonModal(appName);
+    return false;
+  }
+
+  const emailsAttr = el.getAttribute('data-emails') || card?.getAttribute('data-emails') || '';
+  const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
+
+  showGoogleSignInModal(
+    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
+    appName,
+    allowedEmails,
+    null
+  );
+  return false;
+}
+
 // ── TOAST NOTIFICATION ────────────────────────
 function showToast(msg) {
   let toast = document.getElementById('digi-toast');
