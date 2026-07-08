@@ -588,8 +588,9 @@ function injectGoogleModalStyles() {
  * @param {string}   [context]   Label for what's being accessed.
  * @param {string[]} [allowedEmails] Per-card list; falls back to global.
  * @param {Function} [onCancel]  Called if the user cancels.
+ * @param {string}   [title]     Modal heading. Defaults to "CHE DO Portal Access".
  */
-function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel) {
+function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel, title) {
   const existing = document.getElementById('google-signin-modal');
   if (existing) existing.remove();
 
@@ -609,7 +610,7 @@ function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel) {
     <div class="ev-backdrop"></div>
     <div class="ev-box" role="dialog" aria-modal="true" aria-labelledby="gsignin-title">
       <div class="ev-icon">🔐</div>
-      <h2 class="ev-title" id="gsignin-title">CHE DO Portal Access</h2>
+      <h2 class="ev-title" id="gsignin-title">${title || 'CHE DO Portal Access'}</h2>
       ${contextLine}
       <div class="ev-divider">Sign in with Google</div>
       <div id="google-btn-wrap"></div>
@@ -802,7 +803,8 @@ function openGatedApp(el) {
     () => { window.open(link, '_blank', 'noopener,noreferrer'); },
     appName,
     allowedEmails,
-    null
+    null,
+    'Access'
   );
   return false;
 }
