@@ -17,7 +17,6 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 </head>
 <body>
-
   <!-- TOP BAR -->
   <div class="topbar">
     <div class="topbar-left">
@@ -35,7 +34,6 @@
     </div>
     <div class="topbar-right" id="datetimeDisplay"></div>
   </div>
-
   <!-- HERO -->
   <header class="hero">
     <div class="hero-bg"></div>
@@ -45,7 +43,6 @@
       <p class="tagline">Web Applications</p>
     </div>
   </header>
-
   <!-- NAV -->
   <nav class="apps-nav" aria-label="Main Navigation">
     <div class="nav-inner">
@@ -54,11 +51,9 @@
       <a href="chedo.html" class="nav-item special-nav">CHE Office of the Dean</a>
     </div>
   </nav>
-
   <!-- APPLICATIONS CONTENT -->
   <main class="page-section">
     <div class="apps-page-wrap">
-
       <!-- Search Bar -->
       <div class="search-wrap">
         <div class="search-box">
@@ -75,10 +70,8 @@
         </div>
         <p class="search-hint" id="searchHint">Showing all <strong>...</strong> applications</p>
       </div>
-
       <!-- App Cards -->
       <div class="apps-grid" id="appsGrid">
-
         <div class="app-card" data-name="digital repository of thesis manuscript">
           <div class="app-card-header">
             <div class="app-icon">📜</div>
@@ -92,7 +85,7 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-        
+
         <div class="app-card" data-name="digihub che community website">
           <div class="app-card-header">
             <div class="app-icon">🌐</div>
@@ -106,7 +99,7 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-        
+
         <div class="app-card" data-name="docusign tracker document signing">
           <div class="app-card-header">
             <div class="app-icon">📄</div>
@@ -120,7 +113,6 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-
         <div class="app-card" data-name="UPLB Time Keeping System">
           <div class="app-card-header">
             <div class="app-icon">🕛</div>
@@ -134,7 +126,6 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-
         <div class="app-card" data-name="UPLB HR App">
           <div class="app-card-header">
             <div class="app-icon">💼</div>
@@ -148,7 +139,7 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-        
+
         <div class="app-card" data-name="room reservation facility booking">
           <div class="app-card-header">
             <div class="app-icon">🏫</div>
@@ -162,7 +153,6 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-
         <div class="app-card restricted" data-name="vehicle reservation transport van">
           <div class="app-card-header">
             <div class="app-icon">🚐</div>
@@ -187,9 +177,9 @@
                           ameusebio@up.edu.ph,
                           bgeusebio1@up.edu.ph,
                           hbexconde@up.edu.ph,
-                          kmgironella@up.edu.ph, 
+                          kmgironella@up.edu.ph,
                           mrmanalo4@up.edu.ph,
-                          ssmorales@up.edu.ph, 
+                          ssmorales@up.edu.ph,
                           ldsaucelo@up.edu.ph,
                           lbsolis@up.edu.ph,
                           mrvalenzuela2@up.edu.ph,
@@ -231,7 +221,6 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-
         <div class="app-card restricted" data-name="fund utilization budget finance expenditure">
           <div class="app-card-header">
             <div class="app-icon">💰</div>
@@ -274,7 +263,6 @@
             Open App <span class="arrow">→</span>
           </a>
         </div>
-
         <div class="app-card" data-name="feedbacks dashboard survey responses">
           <div class="app-card-header">
             <div class="app-icon">📊</div>
@@ -289,21 +277,17 @@
           </a>
         </div>
       </div>
-
       <!-- No results -->
       <div class="no-results" id="noResults" style="display:none;">
         <span class="no-results-icon">🔎</span>
         <p>No applications found for "<span id="noResultsTerm"></span>"</p>
         <button onclick="clearSearch()">Clear search</button>
       </div>
-
     </div>
   </main>
-
   <footer class="site-footer">
     <p>© <span id="footerYear"></span> DigiCART &mdash; Digital College Administrative Repository for Transformation &mdash; College of Human Ecology, UPLB</p>
   </footer>
-
   <script src="js/data.js"></script>
   <script src="js/main.js"></script>
 </body>
