@@ -57,9 +57,14 @@ function parseMonthYear(monthStr) {
 }
 
 // Build a local-midnight Date for an event, or null if it can't be dated.
+// For a range like "16-17" or "28-30", uses the LAST day so the event
+// only counts as past once the whole range is behind us.
 function eventDate(monthStr, dayStr) {
   const { m, y } = parseMonthYear(monthStr);
-  const d = parseInt(String(dayStr).replace(/[^0-9]/g, ''), 10);
+  // Pull out every run of digits and take the last one as the day.
+  // Handles "16", "16-17", "28–30" (en-dash), "Aug 3", etc.
+  const nums = String(dayStr).match(/\d+/g);
+  const d = nums && nums.length ? parseInt(nums[nums.length - 1], 10) : NaN;
   if (m === null || y === null || !d) return null;
   return new Date(y, m, d);
 }
