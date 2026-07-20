@@ -769,11 +769,18 @@ window.addEventListener('pageshow', guardChedoPage);
  */
 function openVerifiedLink(link) {
   const pending = window.open('', '_blank');
+
+  // Opening the blank tab shifts browser focus to it, which would hide
+  // the sign-in modal (rendered in this tab) behind it. Pull focus back
+  // immediately so the user sees the modal and can sign in.
+  if (pending) window.focus();
+
   return {
     onVerified: () => {
       if (pending) {
         pending.opener = null;
         pending.location = link;
+        pending.focus(); // bring the now-loading app tab to the front
       } else {
         // Even the blank tab got blocked — fall back to a direct attempt.
         window.open(link, '_blank', 'noopener,noreferrer');
