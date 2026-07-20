@@ -799,6 +799,35 @@ function openChedoApp(el) {
   return false;
 }
 
+/**
+ * Called by "Open App" buttons on apps.html for gated (restricted) apps
+ * like Vehicle Reservation and Fund Utilization.
+ * Requires Google Sign-In (checked against the button's own
+ * `data-emails` list) before opening the app link.
+ */
+function openGatedApp(el) {
+  const link = (el.getAttribute('data-link') || '').trim();
+  const card = el.closest('.app-card');
+  const appName = card?.querySelector('.app-name')?.textContent || 'This application';
+
+  if (!link || link === '#' || link.startsWith('PASTE_')) {
+    showComingSoonModal(appName);
+    return false;
+  }
+
+  // apps.html puts data-emails on the <a> button itself (not the card).
+  const emailsAttr = el.getAttribute('data-emails') || card?.getAttribute('data-emails') || '';
+  const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
+
+  showGoogleSignInModal(
+    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
+    appName,
+    allowedEmails,
+    null
+  );
+  return false;
+}
+
 // ── TOAST NOTIFICATION ────────────────────────
 function showToast(msg) {
   let toast = document.getElementById('digi-toast');
