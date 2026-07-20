@@ -56,31 +56,12 @@ function parseMonthYear(monthStr) {
   return { m, y };
 }
 
-// Parse a day cell into { start, end } day-of-month integers, or null.
-// Accepts a single day ("5"), or a range ("1-15", "1 - 15", "1–15" with an
-// en dash). Both ends of a range must fall in the same month.
-function parseDayRange(dayStr) {
-  const s = String(dayStr || '').trim();
-  if (!s) return null;
-  const normalized = s.replace(/[–—]/g, '-'); // normalize en/em dash to hyphen
-  const range = normalized.match(/^(\d{1,2})\s*-\s*(\d{1,2})$/);
-  if (range) {
-    const start = parseInt(range[1], 10);
-    const end = parseInt(range[2], 10);
-    if (!start || !end) return null;
-    return start <= end ? { start, end } : { start: end, end: start };
-  }
-  const d = parseInt(normalized.replace(/[^0-9]/g, ''), 10);
-  return d ? { start: d, end: d } : null;
-}
-
-// Build local-midnight Date objects for the start/end of an event's day
-// range, or null if it can't be dated.
-function eventDateRange(monthStr, dayStr) {
+// Build a local-midnight Date for an event, or null if it can't be dated.
+function eventDate(monthStr, dayStr) {
   const { m, y } = parseMonthYear(monthStr);
-  const range = parseDayRange(dayStr);
-  if (m === null || y === null || !range) return null;
-  return { start: new Date(y, m, range.start), end: new Date(y, m, range.end) };
+  const d = parseInt(String(dayStr).replace(/[^0-9]/g, ''), 10);
+  if (m === null || y === null || !d) return null;
+  return new Date(y, m, d);
 }
 
 function renderEventGroups(groups) {
@@ -92,15 +73,14 @@ function renderEventGroups(groups) {
   today.setHours(0, 0, 0, 0);
   const todayTs = today.getTime();
 
-  // Pass 1: find the soonest upcoming/ongoing start date (an event is still
-  // "upcoming" as long as its end date hasn't passed) across all groups.
+  // Pass 1: find the soonest upcoming date (today or later) across all groups.
   let nextTs = null;
   (groups || []).forEach(group => {
     (group.items || []).forEach(ev => {
-      const r = eventDateRange(group.month, ev.day);
-      if (r && r.end.getTime() >= todayTs) {
-        const startTs = r.start.getTime();
-        if (nextTs === null || startTs < nextTs) nextTs = startTs;
+      const d = eventDate(group.month, ev.day);
+      if (d) {
+        const ts = d.getTime();
+        if (ts >= todayTs && (nextTs === null || ts < nextTs)) nextTs = ts;
       }
     });
   });
@@ -110,17 +90,15 @@ function renderEventGroups(groups) {
   (groups || []).forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
     (group.items || []).forEach(ev => {
-      const r = eventDateRange(group.month, ev.day);
-      const startTs = r ? r.start.getTime() : null;
-      const endTs = r ? r.end.getTime() : null;
+      const d = eventDate(group.month, ev.day);
+      const ts = d ? d.getTime() : null;
       let cls = 'event-item';
       let badge = '';
-      if (endTs !== null && endTs < todayTs) {
+      if (ts !== null && ts < todayTs) {
         cls += ' event-past';
-      } else if (startTs !== null && nextTs !== null && startTs === nextTs) {
+      } else if (ts !== null && nextTs !== null && ts === nextTs) {
         cls += ' event-next';
-        const isOngoingToday = todayTs >= startTs && todayTs <= endTs;
-        badge = `<span class="event-badge">${isOngoingToday ? 'Today' : 'Up next'}</span>`;
+        badge = `<span class="event-badge">${ts === todayTs ? 'Today' : 'Up next'}</span>`;
       }
       html += `<div class="${cls}">
         <span class="event-day">${ev.day}</span>
@@ -610,8 +588,9 @@ function injectGoogleModalStyles() {
  * @param {string}   [context]   Label for what's being accessed.
  * @param {string[]} [allowedEmails] Per-card list; falls back to global.
  * @param {Function} [onCancel]  Called if the user cancels.
+ * @param {string}   [title]     Modal heading. Defaults to "CHE DO Portal Access".
  */
-function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel) {
+function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel, title) {
   const existing = document.getElementById('google-signin-modal');
   if (existing) existing.remove();
 
@@ -631,7 +610,7 @@ function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel) {
     <div class="ev-backdrop"></div>
     <div class="ev-box" role="dialog" aria-modal="true" aria-labelledby="gsignin-title">
       <div class="ev-icon">🔐</div>
-      <h2 class="ev-title" id="gsignin-title">Access</h2>
+      <h2 class="ev-title" id="gsignin-title">${title || 'CHE DO Portal Access'}</h2>
       ${contextLine}
       <div class="ev-divider">Sign in with Google</div>
       <div id="google-btn-wrap"></div>
@@ -757,7 +736,7 @@ function guardChedoPage() {
     (email) => {
       document.body.dataset.chedoUnlocked = 'yes';
       if (content) content.style.visibility = '';
-      console.info(`✅ Access unlocked for ${email}`);
+      console.info(`✅ CHE DO Portal unlocked for ${email}`);
     },
     'the CHE DO Portal',
     null, // use global CHEDO_ALLOWED_EMAILS list
@@ -772,6 +751,37 @@ if (document.readyState === 'loading') {
   guardChedoPage();
 }
 window.addEventListener('pageshow', guardChedoPage);
+
+/**
+ * Opens a blank tab synchronously (inside the click handler) and later
+ * points it at `link` once Google Sign-In verification succeeds.
+ *
+ * Why: Google Identity Services' popup sign-in flow resolves the
+ * "verified" callback asynchronously (after the Google popup closes and
+ * posts back to the page). By that point the browser no longer considers
+ * the code to be running inside the original click's user gesture, so a
+ * fresh `window.open(link, '_blank')` called from inside the callback
+ * gets silently blocked as a popup — the user just lands back on the
+ * gate page with nothing happening. Pre-opening a blank tab during the
+ * real click, then navigating that already-open tab afterward, sidesteps
+ * the popup blocker entirely (navigating an existing window is always
+ * allowed).
+ */
+function openVerifiedLink(link) {
+  const pending = window.open('', '_blank');
+  return {
+    onVerified: () => {
+      if (pending) {
+        pending.opener = null;
+        pending.location = link;
+      } else {
+        // Even the blank tab got blocked — fall back to a direct attempt.
+        window.open(link, '_blank', 'noopener,noreferrer');
+      }
+    },
+    onCancel: () => { if (pending) pending.close(); },
+  };
+}
 
 /**
  * Called by "Open App" buttons on chedo.html.
@@ -789,21 +799,24 @@ function openChedoApp(el) {
 
   const emailsAttr = card?.getAttribute('data-emails') || '';
   const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
+  const pendingTab = openVerifiedLink(link);
 
   showGoogleSignInModal(
-    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
+    pendingTab.onVerified,
     appName,
     allowedEmails,
-    null
+    pendingTab.onCancel
   );
   return false;
 }
 
+// ── GOOGLE SIGN-IN GATE – apps.html RESTRICTED CARDS ──
 /**
- * Called by "Open App" buttons on apps.html for gated (restricted) apps
- * like Vehicle Reservation and Fund Utilization.
- * Requires Google Sign-In (checked against the button's own
- * `data-emails` list) before opening the app link.
+ * Called by "Open App" buttons on restricted cards in apps.html
+ * (e.g. Vehicle Reservation, Fund Utilization). Requires Google
+ * Sign-In with an email on the card's `data-emails` allowlist
+ * before opening the app link. Replaces the old informational
+ * "Continue" modal (showRestrictedModal) for these cards.
  */
 function openGatedApp(el) {
   const link = (el.getAttribute('data-link') || '').trim();
@@ -815,15 +828,16 @@ function openGatedApp(el) {
     return false;
   }
 
-  // apps.html puts data-emails on the <a> button itself (not the card).
   const emailsAttr = el.getAttribute('data-emails') || card?.getAttribute('data-emails') || '';
   const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
+  const pendingTab = openVerifiedLink(link);
 
   showGoogleSignInModal(
-    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
+    pendingTab.onVerified,
     appName,
     allowedEmails,
-    null
+    pendingTab.onCancel,
+    'Access'
   );
   return false;
 }
