@@ -631,7 +631,7 @@ function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel) {
     <div class="ev-backdrop"></div>
     <div class="ev-box" role="dialog" aria-modal="true" aria-labelledby="gsignin-title">
       <div class="ev-icon">🔐</div>
-      <h2 class="ev-title" id="gsignin-title">CHE DO Portal Access</h2>
+      <h2 class="ev-title" id="gsignin-title">Access</h2>
       ${contextLine}
       <div class="ev-divider">Sign in with Google</div>
       <div id="google-btn-wrap"></div>
@@ -757,7 +757,7 @@ function guardChedoPage() {
     (email) => {
       document.body.dataset.chedoUnlocked = 'yes';
       if (content) content.style.visibility = '';
-      console.info(`✅ CHE DO Portal unlocked for ${email}`);
+      console.info(`✅ Access unlocked for ${email}`);
     },
     'the CHE DO Portal',
     null, // use global CHEDO_ALLOWED_EMAILS list
