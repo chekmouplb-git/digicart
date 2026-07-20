@@ -753,44 +753,6 @@ if (document.readyState === 'loading') {
 window.addEventListener('pageshow', guardChedoPage);
 
 /**
- * Opens a blank tab synchronously (inside the click handler) and later
- * points it at `link` once Google Sign-In verification succeeds.
- *
- * Why: Google Identity Services' popup sign-in flow resolves the
- * "verified" callback asynchronously (after the Google popup closes and
- * posts back to the page). By that point the browser no longer considers
- * the code to be running inside the original click's user gesture, so a
- * fresh `window.open(link, '_blank')` called from inside the callback
- * gets silently blocked as a popup — the user just lands back on the
- * gate page with nothing happening. Pre-opening a blank tab during the
- * real click, then navigating that already-open tab afterward, sidesteps
- * the popup blocker entirely (navigating an existing window is always
- * allowed).
- */
-function openVerifiedLink(link) {
-  const pending = window.open('', '_blank');
-
-  // Opening the blank tab shifts browser focus to it, which would hide
-  // the sign-in modal (rendered in this tab) behind it. Pull focus back
-  // immediately so the user sees the modal and can sign in.
-  if (pending) window.focus();
-
-  return {
-    onVerified: () => {
-      if (pending) {
-        pending.opener = null;
-        pending.location = link;
-        pending.focus(); // bring the now-loading app tab to the front
-      } else {
-        // Even the blank tab got blocked — fall back to a direct attempt.
-        window.open(link, '_blank', 'noopener,noreferrer');
-      }
-    },
-    onCancel: () => { if (pending) pending.close(); },
-  };
-}
-
-/**
  * Called by "Open App" buttons on chedo.html.
  * Requires Google Sign-In before opening the app link.
  */
@@ -806,13 +768,12 @@ function openChedoApp(el) {
 
   const emailsAttr = card?.getAttribute('data-emails') || '';
   const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
-  const pendingTab = openVerifiedLink(link);
 
   showGoogleSignInModal(
-    pendingTab.onVerified,
+    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
     appName,
     allowedEmails,
-    pendingTab.onCancel
+    null
   );
   return false;
 }
@@ -837,13 +798,12 @@ function openGatedApp(el) {
 
   const emailsAttr = el.getAttribute('data-emails') || card?.getAttribute('data-emails') || '';
   const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
-  const pendingTab = openVerifiedLink(link);
 
   showGoogleSignInModal(
-    pendingTab.onVerified,
+    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
     appName,
     allowedEmails,
-    pendingTab.onCancel,
+    null,
     'Access'
   );
   return false;
