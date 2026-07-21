@@ -419,8 +419,7 @@ function openEmbeddedApp(link, appName, slug) {
     <div class="embed-bar">
       <span class="embed-title">${appName}</span>
       <div class="embed-actions">
-        <a href="${link}" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
-        <button id="embed-close-btn" type="button">✕ Close</button>
+        <button id="embed-close-btn" type="button">← Back to DigiCART</button>
       </div>
     </div>
     <div class="embed-body">
@@ -428,8 +427,8 @@ function openEmbeddedApp(link, appName, slug) {
         <div class="spin"></div>
         <span>Loading ${appName}…</span>
         <span class="embed-hint" id="embed-hint">
-          Taking a while? This app may not allow being embedded —
-          <a href="${link}" target="_blank" rel="noopener noreferrer">open it in a new tab</a> instead.
+          Taking a while? This app may not be loading properly here — go back
+          to DigiCART and try again, or contact the CHE office if this keeps happening.
         </span>
       </div>
       <iframe class="embed-frame" id="embed-frame" src="${link}" title="${appName}" referrerpolicy="strict-origin-when-cross-origin"></iframe>
