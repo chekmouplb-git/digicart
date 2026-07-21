@@ -334,11 +334,12 @@ function openApp(el) {
   const isRestricted = card && card.classList.contains('restricted');
   // Cards flagged with data-embed="true" open in-page instead of a new tab.
   const embed = el.hasAttribute('data-embed') || card?.hasAttribute('data-embed');
+  const slug = el.getAttribute('data-slug') || card?.getAttribute('data-slug') || null;
 
   if (isRestricted) {
     showRestrictedModal(appName, link);
   } else if (embed) {
-    openEmbeddedApp(link, appName);
+    openEmbeddedApp(link, appName, slug);
   } else {
     window.open(link, '_blank', 'noopener,noreferrer');
   }
@@ -388,12 +389,32 @@ function injectEmbedModalStyles() {
 
 let embedHintTimer = null;
 
-function openEmbeddedApp(link, appName) {
-  closeEmbedModal(); // clear any existing instance first
+/**
+ * `link`   — the real external URL to load in the iframe.
+ * `appName`— shown in the top bar / loading text.
+ * `slug`   — optional. If given, gives the modal a bookmarkable DigiCART
+ *            URL like `apps.html#/apps/room-reservation` instead of
+ *            leaving the address bar on plain `apps.html`. Bookmarking
+ *            that URL and revisiting it later re-runs openApp()/
+ *            openGatedApp() for that card from scratch (see
+ *            handleDeepLink() below) — so a restricted app's Google
+ *            Sign-In gate always re-fires, and the raw external URL is
+ *            never what ends up favorited.
+ */
+function openEmbeddedApp(link, appName, slug) {
+  closeEmbedModal({ skipHashClear: true }); // clear any existing instance first, keep hash as-is
   injectEmbedModalStyles();
+
+  if (slug) {
+    const desiredHash = '#/apps/' + slug;
+    if (location.hash !== desiredHash) {
+      history.pushState({ digicartEmbedSlug: slug }, '', desiredHash);
+    }
+  }
 
   const modal = document.createElement('div');
   modal.id = 'embed-modal';
+  modal.dataset.slug = slug || '';
   modal.innerHTML = `
     <div class="embed-bar">
       <span class="embed-title">${appName}</span>
@@ -430,7 +451,7 @@ function openEmbeddedApp(link, appName) {
     if (hint) hint.classList.add('show');
   }, 4000);
 
-  modal.querySelector('#embed-close-btn').addEventListener('click', closeEmbedModal);
+  modal.querySelector('#embed-close-btn').addEventListener('click', () => closeEmbedModal());
   document.addEventListener('keydown', handleEmbedModalKeydown);
 }
 
@@ -438,14 +459,80 @@ function handleEmbedModalKeydown(e) {
   if (e.key === 'Escape') closeEmbedModal();
 }
 
-function closeEmbedModal() {
+/**
+ * @param {Object} [opts]
+ * @param {boolean} [opts.skipHashClear] Don't touch the URL hash. Used
+ *   when we're about to immediately set a (possibly different) hash
+ *   ourselves, so we don't cause a flicker/extra history entry.
+ */
+function closeEmbedModal(opts) {
+  const skipHashClear = !!(opts && opts.skipHashClear);
   const modal = document.getElementById('embed-modal');
   if (!modal) return;
+  const slug = modal.dataset.slug;
   modal.remove();
   document.body.style.overflow = '';
   document.removeEventListener('keydown', handleEmbedModalKeydown);
   if (embedHintTimer) { clearTimeout(embedHintTimer); embedHintTimer = null; }
+  if (!skipHashClear && slug && slugFromHash() === slug) {
+    history.pushState(null, '', location.pathname + location.search);
+  }
 }
+
+// ── DEEP-LINKABLE EMBEDDED APPS (hash routing) ────
+// Cards with a `data-slug` get a bookmarkable DigiCART URL, e.g.
+// apps.html#/apps/room-reservation, instead of the raw external link
+// ever being the thing a user favorites. Hash routing (rather than a
+// real /apps/room-reservation path) needs no server rewrite rules, so
+// it works unchanged on whatever static host this is deployed to.
+function slugFromHash() {
+  const m = location.hash.match(/^#\/apps\/([a-z0-9-]+)$/i);
+  return m ? m[1].toLowerCase() : null;
+}
+
+// `data-slug` lives on the `.app-btn` anchor itself (same element as
+// `data-link`/`data-embed`), not on the outer `.app-card`.
+function findButtonBySlug(slug) {
+  if (!slug) return null;
+  return document.querySelector(`.app-btn[data-slug="${slug}"]`);
+}
+
+// Re-runs the button's own click handler (openApp or openGatedApp) so a
+// deep link into a restricted app goes through the exact same Google
+// Sign-In + allowlist check a normal click would — never a shortcut
+// around it.
+function launchCardBySlug(slug) {
+  const btn = findButtonBySlug(slug);
+  if (!btn) {
+    // Unknown/stale slug — drop it quietly rather than leaving a dead
+    // hash in the address bar.
+    if (slugFromHash() === slug) history.replaceState(null, '', location.pathname + location.search);
+    return;
+  }
+  const card = btn.closest('.app-card');
+  if (card && card.classList.contains('restricted')) {
+    openGatedApp(btn);
+  } else {
+    openApp(btn);
+  }
+}
+
+function handleDeepLink() {
+  const slug = slugFromHash();
+  if (slug) launchCardBySlug(slug);
+  else closeEmbedModal();
+}
+
+// main.js loads at the end of <body>, so DOMContentLoaded may well have
+// already fired before this line runs — mirror the readyState check used
+// by guardChedoPage() elsewhere in this file so the initial deep link
+// (if any) still gets picked up.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', handleDeepLink);
+} else {
+  handleDeepLink();
+}
+window.addEventListener('popstate', handleDeepLink);
 
 // ── COMING SOON MODAL ─────────────────────────
 // Shown when an app card has no real link yet. Self-contained: it injects
@@ -910,15 +997,22 @@ function openGatedApp(el) {
   const emailsAttr = el.getAttribute('data-emails') || card?.getAttribute('data-emails') || '';
   const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
   const embed = el.hasAttribute('data-embed') || card?.hasAttribute('data-embed');
+  const slug = el.getAttribute('data-slug') || card?.getAttribute('data-slug') || null;
 
   showGoogleSignInModal(
     () => {
-      if (embed) openEmbeddedApp(link, appName);
+      if (embed) openEmbeddedApp(link, appName, slug);
       else window.open(link, '_blank', 'noopener,noreferrer');
     },
     appName,
     allowedEmails,
-    null,
+    () => {
+      // Cancelled sign-in — if we got here via a bookmarked deep link,
+      // don't leave a dead hash sitting in the address bar.
+      if (slug && slugFromHash() === slug) {
+        history.pushState(null, '', location.pathname + location.search);
+      }
+    },
     'Access'
   );
   return false;
