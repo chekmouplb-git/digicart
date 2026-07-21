@@ -332,13 +332,119 @@ function openApp(el) {
 
   // Check if the card is restricted
   const isRestricted = card && card.classList.contains('restricted');
+  // Cards flagged with data-embed="true" open in-page instead of a new tab.
+  const embed = el.hasAttribute('data-embed') || card?.hasAttribute('data-embed');
 
   if (isRestricted) {
     showRestrictedModal(appName, link);
+  } else if (embed) {
+    openEmbeddedApp(link, appName);
   } else {
     window.open(link, '_blank', 'noopener,noreferrer');
   }
   return false;
+}
+
+// ── IN-APP EMBED VIEWER ───────────────────────
+/**
+ * Opens `link` inside a full-screen in-page iframe instead of a new tab,
+ * so the app feels like it's part of DigiCART. Used for cards marked
+ * `data-embed="true"` (Room Reservation, Feedbacks Dashboard, Vehicle
+ * Reservation, Fund Utilization).
+ *
+ * Caveat: some sites refuse to be framed at all (via the X-Frame-Options
+ * or Content-Security-Policy: frame-ancestors headers they send, or —
+ * for anything that itself shows a Google Sign-In inside its own UI —
+ * because Google blocks accounts.google.com from loading inside an
+ * iframe). There's no reliable way to detect that from here; the browser
+ * just renders a blank frame or its own "refused to connect" page. We
+ * always show an "Open in a new tab" link, plus a hint that appears
+ * automatically after a few seconds, so nobody gets stuck looking at a
+ * blank panel.
+ */
+function injectEmbedModalStyles() {
+  if (document.getElementById('embed-modal-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'embed-modal-styles';
+  style.textContent = `
+    #embed-modal { position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.2s ease; background: #1b1b1b; }
+    #embed-modal.modal-visible { opacity: 1; }
+    #embed-modal .embed-bar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: var(--maroon, #7B1C2A); color: #fff; }
+    #embed-modal .embed-title { font-family: var(--font-display, 'Playfair Display', serif); font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #embed-modal .embed-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+    #embed-modal .embed-actions a, #embed-modal .embed-actions button { font-family: var(--font-body, 'Source Sans 3', sans-serif); font-size: 13px; font-weight: 700; border-radius: 6px; padding: 7px 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: #fff; text-decoration: none; white-space: nowrap; }
+    #embed-modal .embed-actions a:hover, #embed-modal .embed-actions button:hover { background: rgba(255,255,255,0.15); }
+    #embed-modal .embed-body { position: relative; flex: 1 1 auto; background: #fff; }
+    #embed-modal .embed-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    #embed-modal .embed-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #555; font-family: var(--font-body, 'Source Sans 3', sans-serif); font-size: 14px; background: #fff; text-align: center; padding: 20px; }
+    #embed-modal .embed-loading .spin { width: 28px; height: 28px; border: 3px solid #ddd; border-top-color: var(--maroon, #7B1C2A); border-radius: 50%; animation: embed-spin 0.8s linear infinite; }
+    @keyframes embed-spin { to { transform: rotate(360deg); } }
+    #embed-modal .embed-hint { display: none; font-size: 12.5px; color: #888; max-width: 320px; }
+    #embed-modal .embed-hint a { color: var(--maroon, #7B1C2A); font-weight: 700; }
+    #embed-modal .embed-hint.show { display: block; }
+  `;
+  document.head.appendChild(style);
+}
+
+let embedHintTimer = null;
+
+function openEmbeddedApp(link, appName) {
+  closeEmbedModal(); // clear any existing instance first
+  injectEmbedModalStyles();
+
+  const modal = document.createElement('div');
+  modal.id = 'embed-modal';
+  modal.innerHTML = `
+    <div class="embed-bar">
+      <span class="embed-title">${appName}</span>
+      <div class="embed-actions">
+        <a href="${link}" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+        <button id="embed-close-btn" type="button">✕ Close</button>
+      </div>
+    </div>
+    <div class="embed-body">
+      <div class="embed-loading" id="embed-loading">
+        <div class="spin"></div>
+        <span>Loading ${appName}…</span>
+        <span class="embed-hint" id="embed-hint">
+          Taking a while? This app may not allow being embedded —
+          <a href="${link}" target="_blank" rel="noopener noreferrer">open it in a new tab</a> instead.
+        </span>
+      </div>
+      <iframe class="embed-frame" id="embed-frame" src="${link}" title="${appName}" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  document.body.style.overflow = 'hidden';
+
+  requestAnimationFrame(() => modal.classList.add('modal-visible'));
+
+  const frame = modal.querySelector('#embed-frame');
+  const loading = modal.querySelector('#embed-loading');
+  frame.addEventListener('load', () => { loading.style.display = 'none'; }, { once: true });
+
+  // If the frame hasn't visibly finished loading within 4s (or loaded but
+  // was blocked with no error we can see), surface the fallback hint.
+  embedHintTimer = setTimeout(() => {
+    const hint = document.getElementById('embed-hint');
+    if (hint) hint.classList.add('show');
+  }, 4000);
+
+  modal.querySelector('#embed-close-btn').addEventListener('click', closeEmbedModal);
+  document.addEventListener('keydown', handleEmbedModalKeydown);
+}
+
+function handleEmbedModalKeydown(e) {
+  if (e.key === 'Escape') closeEmbedModal();
+}
+
+function closeEmbedModal() {
+  const modal = document.getElementById('embed-modal');
+  if (!modal) return;
+  modal.remove();
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', handleEmbedModalKeydown);
+  if (embedHintTimer) { clearTimeout(embedHintTimer); embedHintTimer = null; }
 }
 
 // ── COMING SOON MODAL ─────────────────────────
@@ -803,9 +909,13 @@ function openGatedApp(el) {
 
   const emailsAttr = el.getAttribute('data-emails') || card?.getAttribute('data-emails') || '';
   const allowedEmails = emailsAttr.split(',').map(e => e.trim()).filter(Boolean);
+  const embed = el.hasAttribute('data-embed') || card?.hasAttribute('data-embed');
 
   showGoogleSignInModal(
-    () => { window.open(link, '_blank', 'noopener,noreferrer'); },
+    () => {
+      if (embed) openEmbeddedApp(link, appName);
+      else window.open(link, '_blank', 'noopener,noreferrer');
+    },
     appName,
     allowedEmails,
     null,
