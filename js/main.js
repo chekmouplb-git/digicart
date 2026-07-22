@@ -794,7 +794,7 @@ function showGoogleSignInModal(onVerified, context, allowedEmails, onCancel, tit
   injectGoogleModalStyles();
 
   const contextLine = context
-    ? `<p class="ev-subtitle">Sign in to access <strong>${context}</strong>. Only authorized CHE DO employees may proceed.</p>`
+    ? `<p class="ev-subtitle">Sign in to access <strong>${context}</strong>. Only authorized employees may proceed.</p>`
     : `<p class="ev-subtitle">This portal is restricted to <strong>authorized CHE Office of the Dean employees</strong> only.</p>`;
 
   const modal = document.createElement('div');
