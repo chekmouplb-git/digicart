@@ -513,7 +513,7 @@
   }
 
   function post(payload, done) {
-    payload.passcode = state.pass;
+    if (payload.passcode === undefined) payload.passcode = state.pass;
     if (!API_URL) { alert("Connect the Apps Script API first (API_URL is empty)."); return; }
     fetch(API_URL, {
       method: "POST",
@@ -563,9 +563,8 @@
   });
 
   $("dc-save").addEventListener("click", function () {
-    state.pass = $("dc-pass").value.trim();
-    if (!state.pass) { setMsg("Enter the admin passcode.", "err"); return; }
-    sessionStorage.setItem("dcPass", state.pass);
+    var candidatePass = $("dc-pass").value.trim();
+    if (!candidatePass) { setMsg("Enter the admin passcode.", "err"); return; }
 
     var payload;
     if (activeTab === "leave") {
@@ -587,9 +586,15 @@
       if (!payload.activity) { setMsg("Activity is required.", "err"); return; }
     }
 
+    payload.passcode = candidatePass; // send as a candidate — not yet trusted client-side
+
     setMsg("Saving…", "");
     post(payload, function (ok, err) {
       if (ok) {
+        // Server confirmed the passcode is correct — only now remember it
+        // and unlock the ✕ delete buttons for the rest of this browser tab.
+        state.pass = candidatePass;
+        sessionStorage.setItem("dcPass", candidatePass);
         setMsg("Saved. The board will refresh.", "ok");
         ["lv-name", "lv-dept", "oic-name", "oic-pos", "dn-act", "dn-loc"].forEach(function (id) { $(id).value = ""; });
         load();
