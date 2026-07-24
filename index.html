@@ -304,6 +304,11 @@
     <div id="dc-trips"></div>
   </div>
   <div class="dc-card">
+    <h3>Room Reservations Today</h3>
+    <p class="dc-count" id="dc-rooms-count">&nbsp;</p>
+    <div id="dc-rooms"></div>
+  </div>
+  <div class="dc-card">
     <h3>Dean's Schedule</h3>
     <p class="dc-count" id="dc-dean-count">&nbsp;</p>
     <div id="dc-dean"></div>
@@ -380,7 +385,7 @@
      CONFIG — paste your Apps Script Web App URL here.
      While it is empty, the widget runs on sample data.
      ══════════════════════════════════════════════════════════ */
-  var API_URL = "https://script.google.com/macros/s/AKfycbxB2ytoitkCpXe8_1M5zDlerMyJInfUmhu1b3rfoT0dF1-2VtdnHOhsmMingVulLN8/exec";                 // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
+  var API_URL = "https://script.google.com/macros/s/AKfycbwT7dkIdQfSCGD1nrh_sIyb1isj2vLgxUrAcdk5cSo-cAgLa14ancn3lGmSs4-J-R6N/exec";                 // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
   var REFRESH_MINUTES = 5;          // auto-refresh interval
 
   var $ = function (id) { return document.getElementById(id); };
@@ -403,6 +408,10 @@
       trips: [
         { time: "8:00 AM", venue: "UPLB Main Library", driver: "Mang Ben Ocampo", vehicle: "Toyota Hiace (SKD 1234)" },
         { time: "1:30 PM", venue: "DOST-PCAARRD, Los Baños", driver: "Mang Ben Ocampo", vehicle: "Toyota Hiace (SKD 1234)" }
+      ],
+      rooms: [
+        { time: "9:00 AM – 11:00 AM", venue: "CHE Conference Room A", purpose: "Thesis Defense — BS Nutrition" },
+        { time: "1:00 PM – 3:00 PM", venue: "CHE Auditorium", purpose: "General Assembly — CHE Faculty" }
       ],
       deanSchedule: [
         { startTime: "9:00 AM", endTime: "11:00 AM", activity: "Executive Committee Meeting", location: "OC Conference Room" },
@@ -473,6 +482,19 @@
                  esc(t.driver) + (t.vehicle ? " · " + esc(t.vehicle) : "") + "</span></div></li>";
         }).join("") + "</ul>"
       : emptyBlock("Vehicle available", "No approved trips today.");
+
+    /* Room reservations */
+    var rm = d.rooms || [];
+    $("dc-rooms-count").textContent = rm.length
+      ? rm.length + (rm.length === 1 ? " approved reservation" : " approved reservations")
+      : "";
+    $("dc-rooms").innerHTML = rm.length
+      ? '<ul class="dc-list">' + rm.map(function (r) {
+          return "<li><span class='dc-time'>" + esc(r.time || "—") + "</span>" +
+                 "<div class='dc-who dc-trip'><b>" + esc(r.venue) + "</b>" +
+                 (r.purpose ? "<span>" + esc(r.purpose) + "</span>" : "") + "</div></li>";
+        }).join("") + "</ul>"
+      : emptyBlock("Rooms open", "No approved reservations today.");
 
     /* Dean's schedule */
     var dn = d.deanSchedule || [];
