@@ -132,50 +132,72 @@
 
   /* ── Card grid ── */
   #dc-today .dc-grid {
-    display: grid; gap: 18px;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: grid; gap: 14px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  @media (max-width: 980px) {
+    #dc-today .dc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    #dc-today .dc-grid { grid-template-columns: 1fr; }
   }
   #dc-today .dc-card {
     background: var(--dc-paper);
     border: 2px solid var(--dc-line);
     border-top: 4px solid var(--dc-gold);
     border-radius: var(--dc-radius);
-    padding: 18px 20px 16px;
+    padding: 16px 16px 14px;
     box-shadow: 0 2px 12px rgba(123,28,42,.08), 0 1px 3px rgba(0,0,0,.06);
-    min-height: 180px;
+    min-height: 170px;
+    min-width: 0;
   }
   #dc-today .dc-card h3 {
-    font-family: var(--dc-serif); font-size: 18.5px; font-weight: 800;
-    color: var(--dc-maroon); margin: 0 0 2px;
+    font-family: var(--dc-serif); font-size: 16.5px; font-weight: 800;
+    color: var(--dc-maroon); margin: 0 0 2px; line-height: 1.2;
   }
   #dc-today .dc-card .dc-count {
-    font-size: 12.5px; color: var(--dc-ink-soft); margin: 0 0 12px;
+    font-size: 11.5px; color: var(--dc-ink-soft); margin: 0 0 10px;
   }
 
   #dc-today .dc-list { list-style: none; margin: 0; padding: 0; }
   #dc-today .dc-list li {
-    display: flex; align-items: baseline; gap: 10px;
-    padding: 9px 2px; border-bottom: 1px dashed var(--dc-line);
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 8px 0; border-bottom: 1px dashed var(--dc-line);
   }
   #dc-today .dc-list li:last-child { border-bottom: none; }
 
+  /* Stacked layout for time-based entries (trips, rooms, Dean's schedule) —
+     puts the time on its own line above the title so it never gets forced
+     into an awkward mid-word wrap in a narrow column. */
+  #dc-today .dc-list li.dc-stacked {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+    position: relative; padding-right: 22px;
+  }
+  #dc-today .dc-list li.dc-stacked .dc-time {
+    width: auto; color: var(--dc-gold-soft);
+    background: var(--dc-maroon); border-radius: 5px;
+    padding: 1px 7px; font-size: 11.5px;
+  }
+  #dc-today .dc-list li.dc-stacked .dc-who { width: 100%; }
+  #dc-today .dc-list li.dc-stacked .dc-del { position: absolute; top: 6px; right: 0; }
+
   #dc-today .dc-who { flex: 1; min-width: 0; }
-  #dc-today .dc-who b { font-size: 15px; font-weight: 700; }
-  #dc-today .dc-who span { display: block; font-size: 12.5px; color: var(--dc-ink-soft); }
+  #dc-today .dc-who b { font-size: 14px; font-weight: 700; line-height: 1.3; }
+  #dc-today .dc-who span { display: block; font-size: 12px; color: var(--dc-ink-soft); line-height: 1.35; }
 
   #dc-today .dc-badge {
-    flex: none; font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
-    padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+    flex: none; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    padding: 3px 9px; border-radius: 999px; white-space: nowrap;
   }
   #dc-today .dc-badge--full { background: var(--dc-maroon); color: #fff; }
   #dc-today .dc-badge--half { background: var(--dc-gold-soft); color: #7a5408; border: 1px solid var(--dc-gold); }
 
   #dc-today .dc-time {
-    flex: none; width: 84px; font-weight: 700; font-size: 13.5px;
+    flex: none; font-weight: 700; font-size: 13px;
     color: var(--dc-maroon); font-variant-numeric: tabular-nums;
   }
-  #dc-today .dc-trip b { display: block; font-size: 14.5px; }
-  #dc-today .dc-trip span { display: block; font-size: 12.5px; color: var(--dc-ink-soft); }
+  #dc-today .dc-trip b { display: block; font-size: 14px; }
+  #dc-today .dc-trip span { display: block; font-size: 12px; color: var(--dc-ink-soft); }
 
   #dc-today .dc-empty {
     display: grid; place-items: center; text-align: center;
@@ -262,7 +284,6 @@
   @media (max-width: 560px) {
     #dc-today .dc-datemeta { text-align: left; }
     #dc-today .dc-oic { gap: 13px; padding: 15px 16px; }
-    #dc-today .dc-time { width: 72px; }
   }
   @media (prefers-reduced-motion: reduce) {
     #dc-today * { transition: none !important; }
@@ -477,7 +498,7 @@
       : "";
     $("dc-trips").innerHTML = tr.length
       ? '<ul class="dc-list">' + tr.map(function (t) {
-          return "<li><span class='dc-time'>" + esc(t.time || "—") + "</span>" +
+          return "<li class='dc-stacked'><span class='dc-time'>" + esc(t.time || "—") + "</span>" +
                  "<div class='dc-who dc-trip'><b>" + esc(t.venue) + "</b><span>" +
                  esc(t.driver) + (t.vehicle ? " · " + esc(t.vehicle) : "") + "</span></div></li>";
         }).join("") + "</ul>"
@@ -490,7 +511,7 @@
       : "";
     $("dc-rooms").innerHTML = rm.length
       ? '<ul class="dc-list">' + rm.map(function (r) {
-          return "<li><span class='dc-time'>" + esc(r.time || "—") + "</span>" +
+          return "<li class='dc-stacked'><span class='dc-time'>" + esc(r.time || "—") + "</span>" +
                  "<div class='dc-who dc-trip'><b>" + esc(r.venue) + "</b>" +
                  (r.purpose ? "<span>" + esc(r.purpose) + "</span>" : "") + "</div></li>";
         }).join("") + "</ul>"
@@ -504,7 +525,7 @@
     $("dc-dean").innerHTML = dn.length
       ? '<ul class="dc-list">' + dn.map(function (a) {
           var time = a.startTime ? a.startTime + (a.endTime ? "–" + a.endTime : "") : "—";
-          return "<li><span class='dc-time'>" + esc(time) + "</span>" +
+          return "<li class='dc-stacked'><span class='dc-time'>" + esc(time) + "</span>" +
                  "<div class='dc-who dc-trip'><b>" + esc(a.activity) + "</b>" +
                  (a.location ? "<span>" + esc(a.location) + "</span>" : "") + "</div>" +
                  delBtn("DeanSchedule", a.row) + "</li>";
