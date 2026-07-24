@@ -432,7 +432,8 @@
     state.data = d;
     $("dc-date").textContent = d.dateLabel || "";
     $("dc-updated").textContent = d.generatedAt || "";
-    $("dc-demo").hidden = !!API_URL;
+    var demoTag = $("dc-demo");
+    if (demoTag) demoTag.hidden = !!API_URL;
 
     /* OIC strip */
     if (d.oic && d.oic.name) {
