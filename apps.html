@@ -6,7 +6,7 @@
   <title>DigiCART – Applications</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="css/style.css" />
@@ -17,42 +17,40 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 </head>
 <body>
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <div class="weather">
-        <span class="weather-icon">🌧️</span>
-        <div class="weather-info">
-          <span class="weather-pct" id="weatherPct">—%</span>
-          <span class="weather-label">Chance of Raining</span>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- SITE HEADER: brand + nav -->
+  <header class="site-head">
+    <div class="site-head-inner">
+      <a class="brand" href="index.html" aria-label="DigiCART home">
+        <img src="assets/che-logo.png" alt="College of Human Ecology logo" class="brand-logo" onerror="this.style.display='none'" />
+        <span class="brand-word">
+          <strong>DigiCART</strong>
+          <span>One portal. All apps.</span>
+        </span>
+      </a>
+      <nav class="apps-nav" aria-label="Main Navigation">
+        <div class="nav-inner">
+          <a href="index.html" class="nav-item">Home</a>
+          <a href="apps.html" class="nav-item active" aria-current="page">Applications</a>
+          <a href="chedo.html" class="nav-item special-nav">Office of the Dean</a>
         </div>
-      </div>
+      </nav>
     </div>
-    <div class="topbar-center">
-      <img src="assets/che-logo.png" alt="CHE Logo" class="topbar-logo" onerror="this.style.display='none'" />
-      <span class="topbar-college">College of Human Ecology</span>
-    </div>
-    <div class="topbar-right" id="datetimeDisplay"></div>
-  </div>
+  </header>
+
   <!-- HERO -->
-  <header class="hero">
-    <div class="hero-bg"></div>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-bg" aria-hidden="true"></div>
     <div class="hero-content">
-      <h1 class="logo-title">DigiCART</h1>
+      <p class="hero-eyebrow">Web Applications · College of Human Ecology</p>
+      <h1 class="logo-title" id="hero-title">DigiCART</h1>
       <p class="logo-subtitle">Digital College Administrative Repository for Transformation</p>
       <p class="tagline">Web Applications</p>
     </div>
-  </header>
-  <!-- NAV -->
-  <nav class="apps-nav" aria-label="Main Navigation">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-item">Home</a>
-      <a href="apps.html" class="nav-item active">Applications</a>
-      <a href="chedo.html" class="nav-item special-nav">CHE Office of the Dean</a>
-    </div>
-  </nav>
+  </section>
   <!-- APPLICATIONS CONTENT -->
-  <main class="page-section">
+  <main class="page-section" id="main">
     <div class="apps-page-wrap">
       <!-- Search Bar -->
       <div class="search-wrap">
