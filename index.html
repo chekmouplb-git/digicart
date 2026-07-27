@@ -99,6 +99,9 @@
   #dc-today .dc-datemeta { text-align: right; }
   #dc-today .dc-date { font-weight: 700; font-size: 15px; color: var(--dc-ink); margin: 0; }
   #dc-today .dc-refreshed { font-size: 12.5px; color: var(--dc-ink-soft); margin: 3px 0 0; }
+  #dc-today .dc-warn-flag {
+    color: #a15a00; cursor: help; margin-left: 6px; font-weight: 700;
+  }
   #dc-today .dc-refreshed button {
     background: none; border: none; color: var(--dc-maroon); font: inherit;
     font-weight: 700; cursor: pointer; padding: 0 0 0 6px; text-decoration: underline;
@@ -293,7 +296,7 @@
   </div>
   <div class="dc-datemeta">
     <p class="dc-date" id="dc-date">—</p>
-    <p class="dc-refreshed">Updated <span id="dc-updated">—</span><button type="button" id="dc-refresh">Refresh</button></p>
+    <p class="dc-refreshed">Updated <span id="dc-updated">—</span><button type="button" id="dc-refresh">Refresh</button><span id="dc-warn" class="dc-warn-flag" hidden>⚠ some data may be incomplete</span></p>
   </div>
 </div>
 
@@ -413,7 +416,7 @@
       ok: true,
       dateLabel: now.toLocaleDateString("en-PH", { weekday: "long", year: "numeric", month: "long", day: "numeric" }),
       generatedAt: now.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" }),
-      deanName: "Dean Jennifer Marie S. Amparo",
+      deanName: "Dean Ma. Cristina B. Reyes",
       oic: null,
       leaves: [
         { name: "Jose P. Alvarez", department: "Dept. of Human & Family Dev't Studies", type: "Leave", half: "" },
@@ -455,86 +458,116 @@
 
   function render(d) {
     state.data = d;
-    $("dc-date").textContent = d.dateLabel || "";
-    $("dc-updated").textContent = d.generatedAt || "";
-    var demoTag = $("dc-demo");
-    if (demoTag) demoTag.hidden = !!API_URL;
 
-    /* OIC strip */
-    if (d.oic && d.oic.name) {
-      $("dc-oic-label").textContent = "Officer in Charge";
-      $("dc-oic-name").textContent = d.oic.name;
-      $("dc-oic-sub").textContent = d.oic.position ? d.oic.position : "Designated OIC for today";
-    } else {
-      $("dc-oic-label").textContent = "In Charge Today";
-      $("dc-oic-name").textContent = d.deanName || "The Dean";
-      $("dc-oic-sub").textContent = "";
-    }
+    // Each section renders independently — if one throws (a bad value in a
+    // single record, for instance), the rest of the board still updates
+    // instead of the whole render() call silently stopping partway through.
+    var safeSection = function (label, fn) {
+      try { fn(); } catch (err) { console.error("DigiCART render error in '" + label + "':", err); }
+    };
 
-    /* Leaves */
-    var lv = d.leaves || [];
-    $("dc-leaves-count").textContent = lv.length
-      ? lv.length + (lv.length === 1 ? " person is out today" : " people are out today")
-      : "";
-    $("dc-leaves").innerHTML = lv.length
-      ? '<ul class="dc-list">' + lv.map(function (p) {
-          var badge = p.type === "Half Day"
-            ? '<span class="dc-badge dc-badge--half">½ day · ' + esc(p.half === "Afternoon" ? "PM" : "AM") + "</span>"
-            : p.type === "On Business"
-              ? '<span class="dc-badge dc-badge--business">On business</span>'
-              : '<span class="dc-badge dc-badge--full">On leave</span>';
-          return "<li><div class='dc-who'><b>" + esc(p.name) + "</b><span>" + esc(p.department) +
-                 "</span></div>" + badge + delBtn("Leaves", p.row) + "</li>";
-        }).join("") + "</ul>"
-      : emptyBlock("All present", "No leaves recorded for today.");
+    safeSection("header", function () {
+      $("dc-date").textContent = d.dateLabel || "";
+      $("dc-updated").textContent = d.generatedAt || "";
+      var demoTag = $("dc-demo");
+      if (demoTag) demoTag.hidden = !!API_URL;
+    });
 
-    /* Trips */
-    var tr = d.trips || [];
-    $("dc-trips-count").textContent = tr.length
-      ? tr.length + (tr.length === 1 ? " approved trip" : " approved trips")
-      : "";
-    $("dc-trips").innerHTML = tr.length
-      ? '<ul class="dc-list">' + tr.map(function (t) {
-          return "<li class='dc-stacked'><span class='dc-time'>" + esc(t.time || "—") + "</span>" +
-                 "<div class='dc-who dc-trip'><b>" + esc(t.venue) + "</b><span>" +
-                 esc(t.driver) + (t.vehicle ? " · " + esc(t.vehicle) : "") + "</span></div></li>";
-        }).join("") + "</ul>"
-      : emptyBlock("Vehicle available", "No approved trips today.");
+    safeSection("warnings", function () {
+      var warnEl = $("dc-warn");
+      if (warnEl) {
+        if (d.warnings && d.warnings.length) {
+          warnEl.hidden = false;
+          warnEl.title = d.warnings.join("\n");
+          console.warn("DigiCART dashboard — some sections failed to load:", d.warnings);
+        } else {
+          warnEl.hidden = true;
+          warnEl.title = "";
+        }
+      }
+    });
 
-    /* Room reservations */
-    var rm = d.rooms || [];
-    $("dc-rooms-count").textContent = rm.length
-      ? rm.length + (rm.length === 1 ? " approved reservation" : " approved reservations")
-      : "";
-    $("dc-rooms").innerHTML = rm.length
-      ? '<ul class="dc-list">' + rm.map(function (r) {
-          return "<li class='dc-stacked'><span class='dc-time'>" + esc(r.time || "—") + "</span>" +
-                 "<div class='dc-who dc-trip'><b>" + esc(r.venue) + "</b>" +
-                 (r.purpose ? "<span>" + esc(r.purpose) + "</span>" : "") + "</div></li>";
-        }).join("") + "</ul>"
-      : emptyBlock("Rooms open", "No approved reservations today.");
+    safeSection("oic", function () {
+      if (d.oic && d.oic.name) {
+        $("dc-oic-label").textContent = "Officer in Charge";
+        $("dc-oic-name").textContent = d.oic.name;
+        $("dc-oic-sub").textContent = d.oic.position ? d.oic.position : "Designated OIC for today";
+      } else {
+        $("dc-oic-label").textContent = "In Charge Today";
+        $("dc-oic-name").textContent = d.deanName || "The Dean";
+        $("dc-oic-sub").textContent = "";
+      }
+    });
 
-    /* Dean's schedule */
-    var dn = d.deanSchedule || [];
-    $("dc-dean-count").textContent = dn.length
-      ? dn.length + (dn.length === 1 ? " activity today" : " activities today")
-      : "";
-    $("dc-dean").innerHTML = dn.length
-      ? '<ul class="dc-list">' + dn.map(function (a) {
-          var time = a.startTime ? a.startTime + (a.endTime ? "–" + a.endTime : "") : "—";
-          return "<li class='dc-stacked'><span class='dc-time'>" + esc(time) + "</span>" +
-                 "<div class='dc-who dc-trip'><b>" + esc(a.activity) + "</b>" +
-                 (a.location ? "<span>" + esc(a.location) + "</span>" : "") + "</div>" +
-                 delBtn("DeanSchedule", a.row) + "</li>";
-        }).join("") + "</ul>"
-      : emptyBlock("Open day", "No scheduled activities for the Dean.");
+    safeSection("leaves", function () {
+      var lv = d.leaves || [];
+      $("dc-leaves-count").textContent = lv.length
+        ? lv.length + (lv.length === 1 ? " person is out today" : " people are out today")
+        : "";
+      $("dc-leaves").innerHTML = lv.length
+        ? '<ul class="dc-list">' + lv.map(function (p) {
+            var badge = p.type === "Half Day"
+              ? '<span class="dc-badge dc-badge--half">½ day · ' + esc(p.half === "Afternoon" ? "PM" : "AM") + "</span>"
+              : p.type === "On Business"
+                ? '<span class="dc-badge dc-badge--business">On business</span>'
+                : '<span class="dc-badge dc-badge--full">On leave</span>';
+            return "<li><div class='dc-who'><b>" + esc(p.name) + "</b><span>" + esc(p.department) +
+                   "</span></div>" + badge + delBtn("Leaves", p.row) + "</li>";
+          }).join("") + "</ul>"
+        : emptyBlock("All present", "No leaves recorded for today.");
+    });
 
-    /* wire delete buttons */
-    document.querySelectorAll("#dc-today [data-del-row]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        if (!confirm("Remove this entry?")) return;
-        post({ action: "deleteRow", sheet: btn.getAttribute("data-del-sheet"),
-               row: btn.getAttribute("data-del-row") }, function () { load(); });
+    safeSection("trips", function () {
+      var tr = d.trips || [];
+      $("dc-trips-count").textContent = tr.length
+        ? tr.length + (tr.length === 1 ? " approved trip" : " approved trips")
+        : "";
+      $("dc-trips").innerHTML = tr.length
+        ? '<ul class="dc-list">' + tr.map(function (t) {
+            return "<li class='dc-stacked'><span class='dc-time'>" + esc(t.time || "—") + "</span>" +
+                   "<div class='dc-who dc-trip'><b>" + esc(t.venue) + "</b><span>" +
+                   esc(t.driver) + (t.vehicle ? " · " + esc(t.vehicle) : "") + "</span></div></li>";
+          }).join("") + "</ul>"
+        : emptyBlock("Vehicle available", "No approved trips today.");
+    });
+
+    safeSection("rooms", function () {
+      var rm = d.rooms || [];
+      $("dc-rooms-count").textContent = rm.length
+        ? rm.length + (rm.length === 1 ? " approved reservation" : " approved reservations")
+        : "";
+      $("dc-rooms").innerHTML = rm.length
+        ? '<ul class="dc-list">' + rm.map(function (r) {
+            return "<li class='dc-stacked'><span class='dc-time'>" + esc(r.time || "—") + "</span>" +
+                   "<div class='dc-who dc-trip'><b>" + esc(r.venue) + "</b>" +
+                   (r.purpose ? "<span>" + esc(r.purpose) + "</span>" : "") + "</div></li>";
+          }).join("") + "</ul>"
+        : emptyBlock("Rooms open", "No approved reservations today.");
+    });
+
+    safeSection("deanSchedule", function () {
+      var dn = d.deanSchedule || [];
+      $("dc-dean-count").textContent = dn.length
+        ? dn.length + (dn.length === 1 ? " activity today" : " activities today")
+        : "";
+      $("dc-dean").innerHTML = dn.length
+        ? '<ul class="dc-list">' + dn.map(function (a) {
+            var time = a.startTime ? a.startTime + (a.endTime ? "–" + a.endTime : "") : "—";
+            return "<li class='dc-stacked'><span class='dc-time'>" + esc(time) + "</span>" +
+                   "<div class='dc-who dc-trip'><b>" + esc(a.activity) + "</b>" +
+                   (a.location ? "<span>" + esc(a.location) + "</span>" : "") + "</div>" +
+                   delBtn("DeanSchedule", a.row) + "</li>";
+          }).join("") + "</ul>"
+        : emptyBlock("Open day", "No scheduled activities for the Dean.");
+    });
+
+    safeSection("deleteButtons", function () {
+      document.querySelectorAll("#dc-today [data-del-row]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (!confirm("Remove this entry?")) return;
+          post({ action: "deleteRow", sheet: btn.getAttribute("data-del-sheet"),
+                 row: btn.getAttribute("data-del-row") }, function () { load(); });
+        });
       });
     });
   }
