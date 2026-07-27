@@ -35,7 +35,9 @@ async function fetchWeather() {
     if (icon) icon.textContent = pct >= 70 ? '⛈️' : pct >= 40 ? '🌦️' : pct >= 20 ? '🌤️' : '☀️';
   } catch (e) {}
 }
-fetchWeather();
+// Not called — the weather display was removed from the header.
+// Left in place in case a weather widget is reintroduced elsewhere.
+// fetchWeather();
 
 // ── RENDER EVENTS (index.html only) ──────────
 // Month name → 0-based index (supports full and abbreviated forms).
@@ -371,13 +373,13 @@ function injectEmbedModalStyles() {
     #embed-modal { position: fixed; inset: 0; z-index: 10000; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.2s ease; background: #1b1b1b; }
     #embed-modal.modal-visible { opacity: 1; }
     #embed-modal .embed-bar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: var(--maroon, #7B1C2A); color: #fff; }
-    #embed-modal .embed-title { font-family: var(--font-display, 'Playfair Display', serif); font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #embed-modal .embed-title { font-family: var(--font-display, 'Fraunces', 'Playfair Display', serif); font-size: 1.05rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     #embed-modal .embed-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
-    #embed-modal .embed-actions a, #embed-modal .embed-actions button { font-family: var(--font-body, 'Source Sans 3', sans-serif); font-size: 13px; font-weight: 700; border-radius: 6px; padding: 7px 14px; cursor: pointer; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: #fff; text-decoration: none; white-space: nowrap; }
+    #embed-modal .embed-actions a, #embed-modal .embed-actions button { font-family: var(--font-body, 'Instrument Sans', 'Source Sans 3', sans-serif); font-size: 13px; font-weight: 700; border-radius: 999px; padding: 7px 16px; cursor: pointer; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: #fff; text-decoration: none; white-space: nowrap; }
     #embed-modal .embed-actions a:hover, #embed-modal .embed-actions button:hover { background: rgba(255,255,255,0.15); }
     #embed-modal .embed-body { position: relative; flex: 1 1 auto; background: #fff; }
     #embed-modal .embed-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    #embed-modal .embed-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #555; font-family: var(--font-body, 'Source Sans 3', sans-serif); font-size: 14px; background: #fff; text-align: center; padding: 20px; }
+    #embed-modal .embed-loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #555; font-family: var(--font-body, 'Instrument Sans', 'Source Sans 3', sans-serif); font-size: 14px; background: #fff; text-align: center; padding: 20px; }
     #embed-modal .embed-loading .spin { width: 28px; height: 28px; border: 3px solid #ddd; border-top-color: var(--maroon, #7B1C2A); border-radius: 50%; animation: embed-spin 0.8s linear infinite; }
     @keyframes embed-spin { to { transform: rotate(360deg); } }
     #embed-modal .embed-hint { display: none; font-size: 12.5px; color: #888; max-width: 320px; }
@@ -548,13 +550,13 @@ function showComingSoonModal(appName) {
       #coming-soon-modal { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; }
       #coming-soon-modal.modal-visible { opacity: 1; }
       #coming-soon-modal .cs-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); }
-      #coming-soon-modal .cs-box { position: relative; background: var(--white, #fff); border-radius: 18px; padding: 36px 32px 28px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: translateY(16px); transition: transform 0.25s ease; text-align: center; }
+      #coming-soon-modal .cs-box { position: relative; background: var(--white, #fff); border-radius: 22px; border-top: 5px solid var(--gold, #C8960C); padding: 34px 30px 26px; max-width: 400px; width: 92%; box-shadow: 0 24px 64px rgba(43,16,10,0.32); transform: translateY(16px); transition: transform 0.25s ease; text-align: center; }
       #coming-soon-modal.modal-visible .cs-box { transform: translateY(0); }
       #coming-soon-modal .cs-icon { font-size: 46px; margin-bottom: 12px; line-height: 1; }
-      #coming-soon-modal .cs-title { font-family: var(--font-display, 'Playfair Display', serif); font-size: 1.4rem; color: var(--maroon, #7B1C2A); margin-bottom: 8px; }
+      #coming-soon-modal .cs-title { font-family: var(--font-display, 'Fraunces', 'Playfair Display', serif); font-size: 1.4rem; color: var(--maroon, #7B1C2A); margin-bottom: 8px; }
       #coming-soon-modal .cs-app-name { font-size: 13px; font-weight: 700; color: var(--gold, #C8960C); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
       #coming-soon-modal .cs-msg { font-size: 14px; color: var(--gray-600, #555); line-height: 1.55; margin-bottom: 24px; }
-      #coming-soon-modal .cs-btn { padding: 11px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; font-family: var(--font-body, 'Source Sans 3', sans-serif); cursor: pointer; border: none; background: var(--maroon, #7B1C2A); color: #fff; transition: background 0.2s, transform 0.15s; }
+      #coming-soon-modal .cs-btn { padding: 11px 28px; border-radius: 999px; font-size: 14px; font-weight: 700; font-family: var(--font-body, 'Instrument Sans', 'Source Sans 3', sans-serif); cursor: pointer; border: none; background: var(--maroon, #7B1C2A); color: #fff; transition: background 0.2s, transform 0.15s; }
       #coming-soon-modal .cs-btn:hover { background: var(--maroon-dark, #5d0f1c); transform: translateY(-1px); }
     `;
     document.head.appendChild(style);
@@ -727,16 +729,17 @@ function injectGoogleModalStyles() {
       background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
     }
     #google-signin-modal .ev-box {
-      position: relative; background: #fff; border-radius: 18px;
-      padding: 36px 32px 28px; max-width: 420px; width: 92%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative; background: #fff; border-radius: 22px;
+      border-top: 5px solid #C8960C;
+      padding: 34px 30px 26px; max-width: 420px; width: 92%;
+      box-shadow: 0 24px 64px rgba(43,16,10,0.32);
       transform: translateY(16px); transition: transform 0.25s ease;
       text-align: center;
     }
     #google-signin-modal.modal-visible .ev-box { transform: translateY(0); }
     #google-signin-modal .ev-icon { font-size: 46px; margin-bottom: 12px; line-height: 1; }
     #google-signin-modal .ev-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Fraunces', 'Playfair Display', serif;
       font-size: 1.4rem; color: #0D2B1F; margin-bottom: 8px;
     }
     #google-signin-modal .ev-subtitle {
@@ -768,10 +771,10 @@ function injectGoogleModalStyles() {
       margin-top: 18px; display: flex; justify-content: center;
     }
     #google-signin-modal .ev-btn.cancel {
-      padding: 9px 24px; border-radius: 8px; font-size: 13px;
+      padding: 9px 24px; border-radius: 999px; font-size: 13px;
       font-weight: 600; cursor: pointer; border: 1px solid #ddd;
       background: #f5f5f5; color: #555;
-      font-family: 'Source Sans 3', sans-serif;
+      font-family: 'Instrument Sans', 'Source Sans 3', sans-serif;
       transition: background 0.2s;
     }
     #google-signin-modal .ev-btn.cancel:hover { background: #eaeaea; }
@@ -1025,8 +1028,8 @@ function showToast(msg) {
     toast.id = 'digi-toast';
     toast.style.cssText = `
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: #2C2A24; color: #fff; padding: 10px 20px; border-radius: 8px;
-      font-size: 13px; font-family: 'Source Sans 3', sans-serif;
+      background: #2C2A24; color: #fff; padding: 10px 22px; border-radius: 999px;
+      font-size: 13px; font-family: 'Instrument Sans', 'Source Sans 3', sans-serif;
       box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 9999;
       opacity: 0; transition: opacity 0.3s; max-width: 90vw; text-align: center;
     `;
