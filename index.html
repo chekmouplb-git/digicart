@@ -185,6 +185,7 @@
   }
   #dc-today .dc-badge--full { background: var(--dc-maroon); color: #fff; }
   #dc-today .dc-badge--half { background: var(--dc-gold-soft); color: #7a5408; border: 1px solid var(--dc-gold); }
+  #dc-today .dc-badge--business { background: #fff; color: var(--dc-maroon-soft); border: 1.5px solid var(--dc-maroon-soft); }
 
   #dc-today .dc-time {
     flex: none; font-weight: 700; font-size: 13px;
@@ -308,17 +309,17 @@
 <!-- Cards -->
 <div class="dc-grid">
   <div class="dc-card">
-    <h3>On Leave</h3>
+    <h3>On Leave Today</h3>
     <p class="dc-count" id="dc-leaves-count">&nbsp;</p>
     <div id="dc-leaves"></div>
   </div>
   <div class="dc-card">
-    <h3>Vehicle Trips</h3>
+    <h3>Vehicle Trips Today</h3>
     <p class="dc-count" id="dc-trips-count">&nbsp;</p>
     <div id="dc-trips"></div>
   </div>
   <div class="dc-card">
-    <h3>Room Reservations</h3>
+    <h3>Room Reservations Today</h3>
     <p class="dc-count" id="dc-rooms-count">&nbsp;</p>
     <div id="dc-rooms"></div>
   </div>
@@ -349,7 +350,7 @@
       <div class="dc-field"><label>Department / Unit</label><input id="lv-dept" placeholder="e.g., Office of the Dean"></div>
       <div class="dc-row2">
         <div class="dc-field"><label>Type</label>
-          <select id="lv-type"><option>Leave</option><option>Half Day</option></select>
+          <select id="lv-type"><option>Leave</option><option>Half Day</option><option>On Business</option></select>
         </div>
         <div class="dc-field" id="lv-half-wrap" style="visibility:hidden"><label>Half</label>
           <select id="lv-half"><option>Morning</option><option>Afternoon</option></select>
@@ -395,7 +396,11 @@
 (function () {
   "use strict";
 
-  var API_URL = "https://script.google.com/macros/s/AKfycbwT7dkIdQfSCGD1nrh_sIyb1isj2vLgxUrAcdk5cSo-cAgLa14ancn3lGmSs4-J-R6N/exec";
+  /* ══════════════════════════════════════════════════════════
+     CONFIG — paste your Apps Script Web App URL here.
+     While it is empty, the widget runs on sample data.
+     ══════════════════════════════════════════════════════════ */
+  var API_URL = "https://script.google.com/macros/s/AKfycbxB2ytoitkCpXe8_1M5zDlerMyJInfUmhu1b3rfoT0dF1-2VtdnHOhsmMingVulLN8/exec";                 // e.g. "https://script.google.com/macros/s/AKfycb.../exec"
   var REFRESH_MINUTES = 5;          // auto-refresh interval
 
   var $ = function (id) { return document.getElementById(id); };
@@ -413,7 +418,8 @@
       leaves: [
         { name: "Jose P. Alvarez", department: "Dept. of Human & Family Dev't Studies", type: "Leave", half: "" },
         { name: "Karen L. Uy", department: "Institute of Human Nutrition & Food", type: "Half Day", half: "Morning" },
-        { name: "Ramon T. Dela Peña", department: "Office of the Dean", type: "Half Day", half: "Afternoon" }
+        { name: "Ramon T. Dela Peña", department: "Office of the Dean", type: "Half Day", half: "Afternoon" },
+        { name: "Sofia M. Bautista", department: "CHE OCS", type: "On Business", half: "" }
       ],
       trips: [
         { time: "8:00 AM", venue: "UPLB Main Library", driver: "Mang Ben Ocampo", vehicle: "Toyota Hiace (SKD 1234)" },
@@ -474,7 +480,9 @@
       ? '<ul class="dc-list">' + lv.map(function (p) {
           var badge = p.type === "Half Day"
             ? '<span class="dc-badge dc-badge--half">½ day · ' + esc(p.half === "Afternoon" ? "PM" : "AM") + "</span>"
-            : '<span class="dc-badge dc-badge--full">On leave</span>';
+            : p.type === "On Business"
+              ? '<span class="dc-badge dc-badge--business">On business</span>'
+              : '<span class="dc-badge dc-badge--full">On leave</span>';
           return "<li><div class='dc-who'><b>" + esc(p.name) + "</b><span>" + esc(p.department) +
                  "</span></div>" + badge + delBtn("Leaves", p.row) + "</li>";
         }).join("") + "</ul>"
