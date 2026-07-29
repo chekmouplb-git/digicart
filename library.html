@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiCART – Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <!-- Favicons -->
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+<body class="library-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- SITE HEADER: brand + nav -->
+  <header class="site-head">
+    <div class="site-head-inner">
+      <a class="brand" href="index.html" aria-label="DigiCART home">
+        <img src="assets/che-logo.png" alt="College of Human Ecology logo" class="brand-logo" onerror="this.style.display='none'" />
+        <span class="brand-word">
+          <strong>DigiCART</strong>
+          <span>One portal. All apps.</span>
+        </span>
+      </a>
+      <nav class="apps-nav" aria-label="Main Navigation">
+        <div class="nav-inner">
+          <a href="index.html" class="nav-item">Home</a>
+          <a href="apps.html" class="nav-item">Applications</a>
+          <a href="library.html" class="nav-item active" aria-current="page">Library</a>
+          <a href="chedo.html" class="nav-item special-nav">Office of the Dean</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- LIBRARY CONTENT: app fills all remaining viewport height below the header -->
+  <main class="library-main" id="main">
+    <div class="library-frame-wrap" id="libraryFrameWrap">
+      <div class="library-loading" id="libraryLoading">
+        <div class="spin"></div>
+        <span>Loading CHE Library Holdings…</span>
+      </div>
+      <iframe
+        class="library-frame"
+        id="libraryFrame"
+        src="https://che-library-holdings.vercel.app/"
+        title="CHE Library Holdings — Search"
+        referrerpolicy="strict-origin-when-cross-origin"
+      ></iframe>
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
