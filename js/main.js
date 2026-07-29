@@ -1040,3 +1040,12 @@ function showToast(msg) {
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 3500);
 }
+
+// ── LIBRARY PAGE: in-page iframe embed (library.html only) ────
+// No-ops on every other page since these elements don't exist there.
+(function () {
+  const frame = document.getElementById('libraryFrame');
+  const loading = document.getElementById('libraryLoading');
+  if (!frame || !loading) return;
+  frame.addEventListener('load', () => { loading.classList.add('hidden'); }, { once: true });
+})();
