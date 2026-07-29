@@ -340,7 +340,7 @@
     <div id="dc-rooms"></div>
   </div>
   <div class="dc-card">
-    <h3>Dean's Schedule</h3>
+    <h3 id="dc-dean-title">Dean's Schedule</h3>
     <p class="dc-count" id="dc-dean-count">&nbsp;</p>
     <div id="dc-dean"></div>
   </div>
@@ -501,14 +501,17 @@
     });
 
     safeSection("oic", function () {
+      var deanTitleEl = $("dc-dean-title");
       if (d.oic && d.oic.name) {
         $("dc-oic-label").textContent = "Officer in Charge";
         $("dc-oic-name").textContent = d.oic.name;
         $("dc-oic-sub").textContent = d.oic.position ? d.oic.position : "Designated OIC for today";
+        if (deanTitleEl) deanTitleEl.textContent = "OIC Schedule";
       } else {
         $("dc-oic-label").textContent = "In Charge Today";
         $("dc-oic-name").textContent = d.deanName || "The Dean";
         $("dc-oic-sub").textContent = "";
+        if (deanTitleEl) deanTitleEl.textContent = "Dean's Schedule";
       }
     });
 
@@ -560,6 +563,7 @@
 
     safeSection("deanSchedule", function () {
       var dn = d.deanSchedule || [];
+      var whoLabel = (d.oic && d.oic.name) ? "the OIC" : "the Dean";
       $("dc-dean-count").textContent = dn.length
         ? dn.length + (dn.length === 1 ? " activity today" : " activities today")
         : "";
@@ -571,7 +575,7 @@
                    (a.location ? "<span>" + esc(a.location) + "</span>" : "") + "</div>" +
                    delBtn("DeanSchedule", a.row) + "</li>";
           }).join("") + "</ul>"
-        : emptyBlock("Open day", "No scheduled activities for the Dean.");
+        : emptyBlock("Open day", "No scheduled activities for " + whoLabel + ".");
     });
 
     safeSection("deleteButtons", function () {
