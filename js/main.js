@@ -58,17 +58,18 @@ function parseMonthYear(monthStr) {
   return { m, y };
 }
 
-// Build a local-midnight Date for an event, or null if it can't be dated.
-// For a range like "16-17" or "28-30", uses the LAST day so the event
-// only counts as past once the whole range is behind us.
-function eventDate(monthStr, dayStr) {
+// Build local-midnight start/end Dates for an event, or null if it can't
+// be dated. For a range like "16-17" or "28-30", start = first day,
+// end = last day, so we can tell whether TODAY falls inside the range
+// (not just whether the range has fully ended).
+function eventDateRange(monthStr, dayStr) {
   const { m, y } = parseMonthYear(monthStr);
-  // Pull out every run of digits and take the last one as the day.
-  // Handles "16", "16-17", "28–30" (en-dash), "Aug 3", etc.
+  // Pull out every run of digits. Handles "16", "16-17", "28–30" (en-dash), "Aug 3", etc.
   const nums = String(dayStr).match(/\d+/g);
-  const d = nums && nums.length ? parseInt(nums[nums.length - 1], 10) : NaN;
-  if (m === null || y === null || !d) return null;
-  return new Date(y, m, d);
+  if (m === null || y === null || !nums || !nums.length) return null;
+  const startDay = parseInt(nums[0], 10);
+  const endDay = parseInt(nums[nums.length - 1], 10);
+  return { start: new Date(y, m, startDay), end: new Date(y, m, endDay) };
 }
 
 function renderEventGroups(groups) {
@@ -80,32 +81,41 @@ function renderEventGroups(groups) {
   today.setHours(0, 0, 0, 0);
   const todayTs = today.getTime();
 
-  // Pass 1: find the soonest upcoming date (today or later) across all groups.
-  let nextTs = null;
+  // Pass 1: among events that haven't fully ended yet (end >= today),
+  // find the soonest one by START date. This is the one that gets
+  // highlighted, whether it's happening now or coming up next.
+  let nextStartTs = null;
   (groups || []).forEach(group => {
     (group.items || []).forEach(ev => {
-      const d = eventDate(group.month, ev.day);
-      if (d) {
-        const ts = d.getTime();
-        if (ts >= todayTs && (nextTs === null || ts < nextTs)) nextTs = ts;
+      const range = eventDateRange(group.month, ev.day);
+      if (range) {
+        const startTs = range.start.getTime();
+        const endTs = range.end.getTime();
+        if (endTs >= todayTs && (nextStartTs === null || startTs < nextStartTs)) {
+          nextStartTs = startTs;
+        }
       }
     });
   });
 
-  // Pass 2: render, tagging each event as past / next where applicable.
+  // Pass 2: render, tagging each event as past / next-or-today where applicable.
   let html = '';
   (groups || []).forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
     (group.items || []).forEach(ev => {
-      const d = eventDate(group.month, ev.day);
-      const ts = d ? d.getTime() : null;
+      const range = eventDateRange(group.month, ev.day);
+      const startTs = range ? range.start.getTime() : null;
+      const endTs = range ? range.end.getTime() : null;
+      // True whenever today falls anywhere inside the event's range,
+      // not just when it matches a single exact date.
+      const isToday = startTs !== null && endTs !== null && startTs <= todayTs && todayTs <= endTs;
       let cls = 'event-item';
       let badge = '';
-      if (ts !== null && ts < todayTs) {
+      if (endTs !== null && endTs < todayTs) {
         cls += ' event-past';
-      } else if (ts !== null && nextTs !== null && ts === nextTs) {
+      } else if (startTs !== null && nextStartTs !== null && startTs === nextStartTs) {
         cls += ' event-next';
-        badge = `<span class="event-badge">${ts === todayTs ? 'Today' : 'Up next'}</span>`;
+        badge = `<span class="event-badge">${isToday ? 'Today' : 'Up next'}</span>`;
       }
       html += `<div class="${cls}">
         <span class="event-day">${ev.day}</span>
