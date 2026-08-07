@@ -100,6 +100,7 @@ function renderEventGroups(groups) {
 
   // Pass 2: render, tagging each event as past / next-or-today where applicable.
   let html = '';
+  let todayHighlighted = false;
   (groups || []).forEach(group => {
     html += `<div class="event-month">${group.month}</div>`;
     (group.items || []).forEach(ev => {
@@ -113,9 +114,16 @@ function renderEventGroups(groups) {
       let badge = '';
       if (endTs !== null && endTs < todayTs) {
         cls += ' event-past';
+      } else if (isToday) {
+        cls += ' event-today';
+        if (!todayHighlighted) {
+          cls += ' event-next';
+          todayHighlighted = true;
+        }
+        badge = '<span class="event-badge">Today</span>';
       } else if (startTs !== null && nextStartTs !== null && startTs === nextStartTs) {
         cls += ' event-next';
-        badge = `<span class="event-badge">${isToday ? 'Today' : 'Up next'}</span>`;
+        badge = '<span class="event-badge">Up next</span>';
       }
       html += `<div class="${cls}">
         <span class="event-day">${ev.day}</span>
