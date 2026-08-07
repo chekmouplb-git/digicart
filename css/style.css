@@ -689,6 +689,10 @@ body {
   padding: 3px 9px; border-radius: 999px; white-space: nowrap;
 }
 
+.event-item.event-today:not(.event-next) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 /* DigiHUB reference card */
 .digihub-card {
   position: relative;
